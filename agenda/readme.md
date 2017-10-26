@@ -8,12 +8,12 @@
 + model:
 
     * user
-        - userName(unique   )
-        - password
-        - e-mail
-        - tel
 
     * meeting
+
+    * Date
+        - TODO:把用户输入的日期字符串解析出年月日时分，由于没有事先规定好输入字符串格式因此没完成该函数
+
 
 + storage.go: 
 
@@ -26,6 +26,7 @@
 + UI:
 
     接收用户输入和打印信息
+    规定好用户输入格式
 
     * 用户登陆用单例模式
 

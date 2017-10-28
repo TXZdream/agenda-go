@@ -1,4 +1,4 @@
-package agenda
+package model
 
 type Meeting struct {
 	Title string

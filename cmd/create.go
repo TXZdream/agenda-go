@@ -16,7 +16,6 @@ package cmd
 
 import (
 	"fmt"
-
 	"github.com/spf13/cobra"
 )
 
@@ -35,7 +34,7 @@ var mcreateCmd = &cobra.Command{
 	Short: "create meeting",
 	Long: `Use this command to create a new meeting.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("")
+		
 	},
 }
 

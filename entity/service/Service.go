@@ -1,10 +1,11 @@
-package agenda
+package service
 import (
-	""
+	"github.com/txzdream/agenda-go/entity/model"
+	"github.com/txzdream/agenda-go/entity/storage"
 )
 
 type Service struct {
-	service *Storage
+	service *storage.Storage
 }
 
 // 用户登陆
@@ -23,11 +24,8 @@ func (service *Service) DeleteUser(userName string, password string) bool {
 }
 
 // 列出会议
-func (service *Service) ListAllUsers(userName string, password string) []User {
-	return []User
+func (service *Service) ListAllUsers(userName string, password string) []model.User {
+	return []model.User{}
 }
 
 // 创建会议
-func (service *Service)DeleteUser(userName string, password string) bool {
-	return false
-}

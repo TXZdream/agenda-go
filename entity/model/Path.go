@@ -1,4 +1,4 @@
-package agenda
+package model
 
 var DataDirPath string = "data"
 var UserDataPath string = "data/users.json"

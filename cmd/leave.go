@@ -16,7 +16,8 @@ package cmd
 
 import (
 	"fmt"
-
+	"os"
+	service "github.com/txzdream/agenda-go/entity/service"
 	"github.com/spf13/cobra"
 )
 
@@ -26,7 +27,21 @@ var leaveCmd = &cobra.Command{
 	Short: "Leave meeting",
 	Long: `Use this command to leave a meeting.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("leave called")
+		var Service service.Service
+		service.StartAgenda(&Service)
+
+		ok, name := Service.AutoUserLogin()
+		if !ok {
+			fmt.Fprintln(os.Stderr, "error: No current logged user.")
+			os.Exit(0)
+		}
+		
+		if meetingName == "" {
+			fmt.Fprintln(os.Stderr, "error: Meeting theme is required.")
+			os.Exit(0)
+		}
+		// TODO: leave meeting
+		fmt.Println(name)
 	},
 }
 
@@ -42,4 +57,5 @@ func init() {
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
 	// leaveCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	leaveCmd.Flags().StringVarP(&meetingName, "name", "", "", "the name of meeting to be managed")
 }

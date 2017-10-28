@@ -20,6 +20,8 @@ import (
 	"github.com/spf13/cobra"
 )
 
+var meetingName string
+
 // meetingCmd represents the meeting command
 var meetingCmd = &cobra.Command{
 	Use:   "meeting",

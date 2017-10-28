@@ -16,7 +16,8 @@ package cmd
 
 import (
 	"fmt"
-
+	"os"
+	service "github.com/txzdream/agenda-go/entity/service"
 	"github.com/spf13/cobra"
 )
 
@@ -26,7 +27,27 @@ var clearCmd = &cobra.Command{
 	Short: "Clear all meetings",
 	Long: `Remove all meetings you created.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("clear called")
+		var Service service.Service
+		service.StartAgenda(&Service)
+
+		ok, name := Service.AutoUserLogin()
+		if !ok {
+			fmt.Fprintln(os.Stderr, "error: No current logged user.")
+			os.Exit(0)
+		}
+
+		fmt.Print("Are you sure you want to clear all of your meetings? (y/n) ")
+		var confirm string
+		if confirm == "y" {
+			ok = Service.DeleteAllMeetings(name)
+			if ok {
+				fmt.Println("All of the meeting have been deleted.")
+			} else {
+				fmt.Println("Some problems occured when clear your meetings.")
+			}
+		} else {
+			fmt.Println("You canceled the process.")
+		}
 	},
 }
 

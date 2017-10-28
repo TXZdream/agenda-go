@@ -15,8 +15,9 @@
 package cmd
 
 import (
+	"os"
 	"fmt"
-
+	service "github.com/txzdream/agenda-go/entity/service"
 	"github.com/spf13/cobra"
 )
 
@@ -26,7 +27,21 @@ var manageCmd = &cobra.Command{
 	Short: "Manage meeting",
 	Long: `Create meeting.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("manage called")
+		var Service service.Service
+		service.StartAgenda(&Service)
+
+		ok, name := Service.AutoUserLogin()
+		if !ok {
+			fmt.Fprintln(os.Stderr, "error: No current logged user.")
+			os.Exit(0)
+		}
+		
+		if meetingName == "" {
+			fmt.Fprintln(os.Stderr, "error: Meeting theme is required.")
+			os.Exit(0)
+		}
+		//TODO: manage meeting
+		fmt.Println(name)
 	},
 }
 
@@ -42,4 +57,5 @@ func init() {
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
 	// manageCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	manageCmd.Flags().StringVarP(&meetingName, "name", "", "", "the name of meeting to be managed")
 }

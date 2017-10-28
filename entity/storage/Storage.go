@@ -92,7 +92,6 @@ func IsExistUserFileOrCreate() (bool, StorageError) {
 func IsExistMeetingFileOrCreate() (bool, StorageError) {
 	return IsExistFileOrCreate(model.MeetingDataPath)
 }
-
 // ---------------------------------------------
 
 // 判断文件夹和文件是否存在

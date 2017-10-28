@@ -9,17 +9,32 @@ type Service struct {
 	AgendaStorage *storage.Storage
 }
 
-// 开启Agenda
-// 获取单例的storage
+// 开启Agenda，获取单例的storage
 // 获取数据文件各种信息 --- 返回true/false&返回报错信息
+// Usage: var k service.Service  service.StartAgenda(&k)
 func StartAgenda(service *Service) (bool, storage.StorageError) {
 	service.AgendaStorage = storage.GetStorageInstance()
 	return service.AgendaStorage.ReadFromDataFile()
 }
-// 判断是否能够自动登陆，即curUser中是否存在有效用户名
-func AutoUserLogin(service *Service) () bool {
 
+// 判断是否能够自动登陆，即curUser中是否存在有效用户名
+// 存在有效用户名，返回true+用户名，否则返回false+空字符串
+func AutoUserLogin(service *Service) () (bool, string) {
+	result, currentUserName := service.AgendaStorage.ReadFromCurrentUserFile
+	if !result {
+		return false, ""
+	}
+	// 判断是否存在该用户名
+	if len(service.AgendaStorage.QueryUsers(func(user model.User) bool {
+		return user.UserName == currentUserName
+	})) == 1 {
+		return true, currentUserName
+	}
+	return false, ""
 }
+
+// 获取当前用户名
+
 
 // ?? 退出Agenda
 func (service *Service) QuitAgenda() {

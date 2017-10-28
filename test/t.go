@@ -1,6 +1,7 @@
 package main
 import (
-	"github.com/txzdream/agenda-go/entity/service"
+	model "github.com/txzdream/agenda-go/entity/model"
+	service "github.com/txzdream/agenda-go/entity/service"
 	"fmt"
 )
 
@@ -9,7 +10,7 @@ func main() {
 	service.StartAgenda(&k)
 	fmt.Println(k)
 	fmt.Println(k.AgendaStorage)
-	k.AgendaStorage.CurrentUser = service.User{"sads", "SDfd", "asds", "sadsd"}
+	k.AgendaStorage.CurrentUser = model.User{"sads", "SDfd", "asds", "sadsd"}
 	fmt.Println(k.AgendaStorage)
 
 	var m service.Service

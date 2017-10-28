@@ -87,27 +87,69 @@ func (service *Service) ListAllUsers() []model.User {
 	})
 }
 
+
+// 判断会议起始时间是否合法
+func IsValidStartAndEndDateTime(startDateString *string, endDateString *string) bool {
+	// 判断时间字符串是否符合格式要求：2012-2-2/11:23并解析字符串为Int数组
+	var startDateIntArray [5]int
+	var endDateIntArray [5]int
+	if !model.StringDateTimeToIntArray(*startDateString, &startDateIntArray) || 
+		!model.StringDateTimeToIntArray(*endDateString, &endDateIntArray) {
+		return false
+	}
+
+	// 判断时间数字是否合法
+	if !model.IsValidDateTime(startDateIntArray) || !model.IsValidDateTime(endDateIntArray) {
+		return false
+	}
+
+	// 判断开始时间是否小于结束时间
+	startDate := model.Date{model.SetDateByYMDHM(startDateIntArray)}
+	endDate := model.Date{model.SetDateByYMDHM(endDateIntArray)}
+	if !startDate.Before(endDate) {
+		return false
+	}
+
+	// 再一次由于对原有字符串有容错性，再次转换确保字符串格式规范
+	*startDateString = startDate.ToString()
+	*endDateString = endDate.ToString()
+	return true
+}
+
 // 创建会议
 func (service *Service) CreateMeeting(sponsor string, title string, 
-					startDate string, endDate string, participators []model.User) bool {
+					startDateString string, endDateString string, participators []string) bool {
 	// 判断title是否已存在
 	if len(service.AgendaStorage.QueryMeetings(func(meeting model.Meeting) bool {
 		return meeting.GetTitle() == title
 	})) > 0 {
 		return false
 	}
+
 	// 判断时间合法
-	// 判断时间字符串是否符合格式要求：2012-2-2/11:23并解析字符串为Int数组
-	var startDateIntArray [5]int
-	var endDateIntArray [5]int
-	if !model.StringDateTimeToIntArray(startDate, &startDateIntArray) && !model.StringDateTimeToIntArray(endDate, &endDateIntArray) {
+	if !IsValidStartAndEndDateTime(&startDateString, &endDateString) {
 		return false
 	}
-	// 判断时间数字是否合法
-	// if !model.IsValidDateTime(startDateIntArray)
-	// 判断开始和结束时间是否大小不对
-	// 判断参与者是否有其他同时段的会议
-	
+
+	// ----- 判断参与者是否有其他同时段的会议 -----
+	// 获取同时段冲突会议
+	timeConflictMeetings := service.AgendaStorage.QueryMeetings(func(meeting model.Meeting) bool {
+		return (meeting.GetStartDate() <= startDateString && meeting.GetEndDate() > startDateString) ||
+		(meeting.GetStartDate() < endDateString && meeting.GetEndDate() >= endDateString) ||
+		(meeting.GetStartDate() >= startDateString && meeting.GetEndDate() <= endDateString)
+	})
+	for _, tMeeting := range timeConflictMeetings {
+		if tMeeting.IsParticipators(sponsor) || tMeeting.GetSponsor() == sponsor {
+			return false
+		}
+		for _, participator := range participators {
+			if tMeeting.IsParticipators(participator) || tMeeting.GetSponsor() == participator {
+				return false
+			}
+		}
+	}
+	// ------------------------------------------
+
 	// 创建会议
 	return true
 }

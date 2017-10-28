@@ -3,7 +3,7 @@ package model
 type Meeting struct {
 	Title string
 	Sponsor string
-	Participators string
+	Participators []string
 	StartDate string
 	EndDate string
 }
@@ -24,19 +24,27 @@ func (meeting *Meeting) SetSponsor(sponsor string) {
 	meeting.Sponsor = sponsor
 }
 
-func (meeting Meeting) GetParticipators() string {
+func (meeting Meeting) GetParticipators() []string {
 	return meeting.Participators
 }
 
-func (meeting *Meeting) SetParticipators(participators string) {
+func (meeting *Meeting) SetParticipators(participators []string) {
 	meeting.Participators = participators
 }
+
+// 根据用户名判断是否为参与者
+func (meeting *Meeting) IsParticipators(userName string) bool {
+	for _, participator := range meeting.GetParticipators() {
+		if 
+	}
+}
+
 
 func (meeting Meeting) GetStartDate() string {
 	return meeting.StartDate
 }
 
-func (meeting *Meeting) Set(startDate string) {
+func (meeting *Meeting) SetStartDate()(startDate string) {
 	meeting.StartDate = startDate
 }
 

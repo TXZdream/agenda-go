@@ -1,29 +1,35 @@
 package entity
 
 import (
-	
+	//"fmt"
 )
 
 type Service struct {
-	storage *Storage
-	CurrentUser User
-	Users       []User
-	Meetings    []Meeting
+	AgendaStorage *Storage
 }
 
-// ??退出Agenda
-func (service *Service) StartAgenda() {
-	// service
-	// return false
+type ServiceStat int
+const (
+	LOGIN ServiceStat = 
+	LOGOUT ServiceStat
+)
+
+// ??开启Agenda
+// 获取单例的storage
+// 获取数据文件各种信息--start失败false&返回报错信息&未登录
+// 成功则判断是否返回true&报错信息&是否登陆状态
+func StartAgenda(service *Service) (bool, StorageError, ServiceStat) {
+	service.AgendaStorage = GetStorageInstance()
+	return false
 }
 
-// ?? 开启Agenda
+// ?? 退出Agenda
 func (service *Service) QuitAgenda() {
 	// return false
 }
 
 // 用户登陆
-func (service *Service) UserLogin(userName string, password string) bool {
+func (service *Service) UserLogin(userName string, password string) (bool, StorageError) {
 	return false
 }
 

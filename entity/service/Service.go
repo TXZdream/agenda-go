@@ -1,4 +1,5 @@
-package service
+package entity
+
 import (
 	"github.com/txzdream/agenda-go/entity/model"
 	"github.com/txzdream/agenda-go/entity/storage"
@@ -9,10 +10,10 @@ type Service struct {
 }
 
 type ServiceStat int
-const (
-	LOGIN ServiceStat = 
-	LOGOUT ServiceStat
-)
+// const (
+// 	LOGIN ServiceStat = 
+// 	LOGOUT ServiceStat
+// )
 
 // 开启Agenda
 // 获取单例的storage
@@ -22,7 +23,7 @@ func StartAgenda(service *Service) (bool, StorageError) {
 	return service.AgendaStorage.ReadFromDataFile()
 }
 // 判断
-func AutoUserLogin(service *Service) ()
+//func AutoUserLogin(service *Service) ()
 
 // ?? 退出Agenda
 func (service *Service) QuitAgenda() {
@@ -31,7 +32,7 @@ func (service *Service) QuitAgenda() {
 
 // 用户登陆
 func (service *Service) UserLogin(userName string, password string) (bool, StorageError) {
-	return false
+	return service.AgendaStorage.ReadFromDataFile()
 }
 
 // 用户注册

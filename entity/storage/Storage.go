@@ -1,13 +1,14 @@
-package storage
+package entity
+
 import (
-	// "fmt"
-	"sync"
-	"os"
-	"io/ioutil"
 	"encoding/json"
+	"io/ioutil"
+	"os"
 	"strings"
+	"sync"
 	"github.com/txzdream/agenda-go/entity/model"
 )
+
 
 // Usage : agenda.Storage{Users: []agenda.User{}, Meetings: []agenda.Meeting{}}
 type Storage struct {
@@ -230,7 +231,6 @@ func (storage *Storage) WriteMeetingFile() bool {
 
 // 退出登陆，清空当前用户，把当前用户名、用户列表数据和会议列表数据写入
 func (storage *Storage) LogOutStorage(CurrentUserName string) (bool, StorageError) {
-	storage.CurrentUser = User{} // 清空当前用户
 	instance = nil
 	if !storage.WriteToCurrentUserFile(CurrentUserName) {
 		return false, FailWriteDataFile

@@ -131,62 +131,87 @@ func (service *Service) CreateMeeting(sponsor string, title string,
 		return false
 	}
 
-	// ----- 判断参与者是否有其他同时段的会议 -----
 	// 获取同时段冲突会议
 	timeConflictMeetings := service.AgendaStorage.QueryMeetings(func(meeting model.Meeting) bool {
 		return (meeting.GetStartDate() <= startDateString && meeting.GetEndDate() > startDateString) ||
 		(meeting.GetStartDate() < endDateString && meeting.GetEndDate() >= endDateString) ||
 		(meeting.GetStartDate() >= startDateString && meeting.GetEndDate() <= endDateString)
 	})
+	// 判断发起者或参与者是否参与了冲突会议
 	for _, tMeeting := range timeConflictMeetings {
-		if tMeeting.IsParticipators(sponsor) || tMeeting.GetSponsor() == sponsor {
+		if tMeeting.IsParticipators(sponsor) || tMeeting.GetSponsor() == sponsor {	// 检查发起者
 			return false
 		}
-		for _, participator := range participators {
+		for _, participator := range participators { 	// 检查参与者
 			if tMeeting.IsParticipators(participator) || tMeeting.GetSponsor() == participator {
 				return false
 			}
 		}
 	}
-	// ------------------------------------------
-
+	
 	// 创建会议
-	return true
+	return service.AgendaStorage.CreateMeeting(
+		model.Meeting{Title: title, Sponsor: sponsor, Participators: participators, StartDate: startDateString, EndDate: endDateString})
 }
 
-// 查找会议---通过title查找
+// 查找会议---通过用户名(用户作为发起者/参与者)和会议title查找
 func (service *Service) MeetingQueryByTitle(userName string, title string) []model.Meeting {
-	return []model.Meeting{}
+	return service.AgendaStorage.QueryMeetings(func(meeting model.Meeting) bool {
+		return meeting.GetTitle() == title && meeting.GetSponsor() == userName &&
+			meeting.IsParticipators(userName)
+	})
 }
 
 // 查找会议---通过usernsme(作为会议发起者和参与者)和会议起始时间查找
-func (service *Service) MeetingQueryByUserAndTime(userName string, startDate string, endDate string) []model.Meeting {
-	return []model.Meeting{}
+func (service *Service) MeetingQueryByUserAndTime(
+						userName string, startDateString string, endDateString string) []model.Meeting {
+	
+	// 检查字符串是否合法
+	if !IsValidStartAndEndDateTime(&startDateString, &endDateString) {
+		return []model.Meeting{}
+	}
+	// 获取用户发起/参与且时间冲突的会议
+	return service.AgendaStorage.QueryMeetings(func(meeting model.Meeting) bool {
+		return meeting.GetSponsor() == userName && meeting.IsParticipators(userName) &&
+		(meeting.GetStartDate() <= startDateString && meeting.GetEndDate() >= startDateString) ||
+		(meeting.GetStartDate() <= endDateString && meeting.GetEndDate() >= endDateString) ||
+		(meeting.GetStartDate() >= startDateString && meeting.GetEndDate() <= endDateString)
+	})
 }
 
 // 列出该用户发起或参与的所有会议
 func (service *Service) ListAllMeetings(userName string) []model.Meeting {
-	return []model.Meeting{}
+	return service.AgendaStorage.QueryMeetings(func(meeting model.Meeting) bool {
+		return meeting.GetSponsor() == userName && meeting.IsParticipators(userName)
+	})
 }
 
 // 列出该用户发起的所有会议
-func (service *Service) ListAllSponsorMeetings(userName string, password string) bool {
-	return false
+func (service *Service) ListAllSponsorMeetings(userName string, password string) []model.Meeting {
+	return service.AgendaStorage.QueryMeetings(func(meeting model.Meeting) bool {
+		return meeting.GetSponsor() == userName
+	})
 }
 
 // 列出该用户参加的所有会议
-func (service *Service) ListAllParticipateMeetings(userName string, password string) bool {
-	return false
+func (service *Service) ListAllParticipateMeetings(userName string, password string) []model.Meeting {
+	return service.AgendaStorage.QueryMeetings(func(meeting model.Meeting) bool {
+		return meeting.IsParticipators(userName)
+	})
 }
 
-// 删除发起者sponsor题目title会议
+// 根据sponsor和title删除会议
 func (service *Service) DeleteMeeting(sponsor string, title string) bool {
-	return false
+	return service.AgendaStorage.DeleteMeeting(func(meeting model.Meeting) bool {
+		return meeting.GetTitle() == title && meeting.GetSponsor() == sponsor
+	})
 }
 
 // 删除sponsor所有会议
 func (service *Service) DeleteAllMeetings(sponsor string) bool {
-	return false
+	return service.AgendaStorage.DeleteMeeting(func(meeting model.Meeting) bool {
+		return meeting.GetSponsor() == sponsor
+	})
 }
 
 

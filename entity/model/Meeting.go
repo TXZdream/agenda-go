@@ -35,16 +35,18 @@ func (meeting *Meeting) SetParticipators(participators []string) {
 // 根据用户名判断是否为参与者
 func (meeting *Meeting) IsParticipators(userName string) bool {
 	for _, participator := range meeting.GetParticipators() {
-		if 
+		if participator == userName {
+			return true
+		}
 	}
+	return false
 }
-
 
 func (meeting Meeting) GetStartDate() string {
 	return meeting.StartDate
 }
 
-func (meeting *Meeting) SetStartDate()(startDate string) {
+func (meeting *Meeting) SetStartDate(startDate string) {
 	meeting.StartDate = startDate
 }
 

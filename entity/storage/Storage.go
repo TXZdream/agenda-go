@@ -315,7 +315,7 @@ func (storage *Storage) UpdateMeeting(filter func(meeting model.Meeting) bool, u
 	}
 	return false
 }
-
+ 
 // 删除会议
 func (storage *Storage) DeleteMeeting(filter func(meeting model.Meeting) bool) bool {
 	isDeleted := false // 是否进行过删除

@@ -94,9 +94,10 @@ func IsValidMinute(minute int) bool {
 	return minute >= 0 && minute < 60
 }
 // 判断DateTime是否合法
-func IsValidDateTime(year, month, day, hour, minute int) bool {
-	return IsValidYear(year) && IsValidMonth(month) && IsValidDayByYM(year, month, day) && 
-			IsValidHour(hour) && IsValidMinute(minute)
+func IsValidDateTime(dateTimeArray [5]int) bool {
+	return IsValidYear(dateTimeArray[0]) && IsValidMonth(dateTimeArray[1]) && 
+		   IsValidDayByYM(dateTimeArray[0], dateTimeArray[1], dateTimeArray[2]) && 
+		   IsValidHour(dateTimeArray[3]) && IsValidMinute(dateTimeArray[4])
 }
 // ---------------------------------------
 

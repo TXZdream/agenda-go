@@ -279,6 +279,7 @@ func (storage *Storage) DeleteUser(filter func(user model.User) bool) bool {
 		if filter(tUser) {
 			storage.Users = append(storage.Users[:index], storage.Users[index+1:]...)
 			isDeleted = true
+			break
 		}
 	}
 	return isDeleted && storage.WriteUserFile()

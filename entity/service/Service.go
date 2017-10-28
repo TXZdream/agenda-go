@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 package entity
 
 import (
@@ -21,6 +22,21 @@ const (
 func StartAgenda(service *Service) (bool, StorageError, ServiceStat) {
 	service.AgendaStorage = GetStorageInstance()
 	return false
+=======
+package service
+import (
+	"github.com/txzdream/agenda-go/entity/model"
+	"github.com/txzdream/agenda-go/entity/storage"
+)
+
+type Service struct {
+	service *storage.Storage
+}
+
+// ??退出Agenda
+func (service *Service) StartAgenda() {
+	// return false
+>>>>>>> upstream/master
 }
 
 // ?? 退出Agenda
@@ -44,17 +60,23 @@ func (service *Service) DeleteUser(userName string, password string) bool {
 }
 
 // 列出用户
+<<<<<<< HEAD
 func (service *Service) ListAllUsers(userName string, password string) []User {
 	return []User{}
+=======
+func (service *Service) ListAllUsers(userName string, password string) []model.User {
+	return []model.User{}
+>>>>>>> upstream/master
 }
 
 // 创建会议
 func (service *Service) CreateMeeting(sponsor string, title string, 
-					startDate string, endDate string, participators []User) bool {
+					startDate string, endDate string, participators []model.User) bool {
 	return false
 }
 
 // 查找会议---通过title查找
+<<<<<<< HEAD
 func (service *Service) MeetingQueryByTitle(userName string, title string) []Meeting {
 	return []Meeting{}
 }
@@ -67,6 +89,20 @@ func (service *Service) MeetingQueryByUserAndTime(userName string, startDate str
 // 列出该用户发起或参与的所有会议
 func (service *Service) ListAllMeetings(userName string) []Meeting {
 	return []Meeting{}
+=======
+func (service *Service) MeetingQueryByTitle(userName string, title string) []model.Meeting {
+	return []model.Meeting{}
+}
+
+// 查找会议---通过usernsme(作为会议发起者和参与者)和会议起始时间查找
+func (service *Service) MeetingQueryByUserAndTime(userName string, startDate string, endDate string) []model.Meeting {
+	return []model.Meeting{}
+}
+
+// 列出该用户发起或参与的所有会议
+func (service *Service) ListAllMeetings(userName string) []model.Meeting {
+	return []model.Meeting{}
+>>>>>>> upstream/master
 }
 
 // 列出该用户发起的所有会议

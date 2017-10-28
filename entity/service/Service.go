@@ -1,59 +1,115 @@
 package entity
 
 import (
+	"fmt"
 	model "github.com/txzdream/agenda-go/entity/model"
 	storage "github.com/txzdream/agenda-go/entity/storage"
+	tools "github.com/txzdream/agenda-go/entity/tools"
 )
 
 type Service struct {
 	AgendaStorage *storage.Storage
 }
 
-type ServiceStat int
-// const (
-// 	LOGIN ServiceStat = 
-// 	LOGOUT ServiceStat
-// )
-
-// 开启Agenda
-// 获取单例的storage
+// 开启Agenda，获取单例的storage
 // 获取数据文件各种信息 --- 返回true/false&返回报错信息
+// Usage: var k service.Service  service.StartAgenda(&k)
 func StartAgenda(service *Service) (bool, storage.StorageError) {
 	service.AgendaStorage = storage.GetStorageInstance()
 	return service.AgendaStorage.ReadFromDataFile()
 }
-// 判断
-//func AutoUserLogin(service *Service) ()
+
+// 判断是否能够自动登陆，即curUser中是否存在可登录的用户名
+// 存在有效用户名，返回true+用户名，否则返回false+空字符串
+func (service *Service) AutoUserLogin() (bool, string) {
+	result, currentUserName := service.AgendaStorage.ReadFromCurrentUserFile()
+	if !result {
+		fmt.Println(result, currentUserName)
+		return false, ""
+	}
+	// 根据获得的用户名判断是否存在该用户名
+	if len(service.AgendaStorage.QueryUsers(func(user model.User) bool {
+		return user.GetUserName() == currentUserName
+	})) == 1 {
+		return true, currentUserName
+	}
+	return false, ""
+}
 
 // ?? 退出Agenda
 func (service *Service) QuitAgenda() {
 	// return false
 }
 
-// 用户登陆
-func (service *Service) UserLogin(userName string, password string) (bool, storage.StorageError) {
-	return service.AgendaStorage.ReadFromDataFile()
+// 没有可自动登陆的用户，需要用户输入用户名和密码登陆
+func (service *Service) UserLogin(userName string, password string) bool {
+	// 对传入的md5密码进行加密
+	password = tools.MD5Encryption(password)
+	// 根据获得的用户名和密码判断是否存在该用户名
+	return len(service.AgendaStorage.QueryUsers(func(user model.User) bool {
+		return user.GetUserName() == userName && user.GetPassword() == password
+	})) == 1
 }
 
-// 用户注册
-func (service *Service) UserRegister(userName string, password string) bool {
-	return false
+// 用户注册，用户输入信息，判断是否存在同名用户
+func (service *Service) UserRegister(userName string, password string, 
+									 email string, phone string) bool {
+	// 根据获得的用户名判断是否存在该用户名
+	if len(service.AgendaStorage.QueryUsers(func(user model.User) bool {
+		return user.GetUserName() == userName
+	})) == 1 {
+		return false		// 已存在同名用户则注册失败
+	}
+	// 对传入的md5密码进行加密
+	password = tools.MD5Encryption(password)
+	return service.AgendaStorage.CreateUser(model.User{UserName: userName, Password: password, Email: email, Phone: phone})
 }
 
-// 删除用户
+// 删除用户，判断是否存在同名用户再进行删除
 func (service *Service) DeleteUser(userName string, password string) bool {
-	return false
+	password = tools.MD5Encryption(password)
+	// 根据获得的用户名判断是否存在该用户名
+	if len(service.AgendaStorage.QueryUsers(func(user model.User) bool {
+		return user.GetUserName() == userName && user.GetPassword() == password
+	})) != 1 {
+		return false		// 不存在同名用户则删除失败
+	}
+	// 存在同名用户则进行删除操作
+	return service.AgendaStorage.DeleteUser(func(user model.User) bool {
+		return user.GetUserName() == userName && user.GetPassword() == password
+	})
 }
 
-// 列出用户
-func (service *Service) ListAllUsers(userName string, password string) []model.User {
-	return []model.User{}
+// 列出所有用户
+func (service *Service) ListAllUsers() []model.User {
+	return service.AgendaStorage.QueryUsers(func(user model.User) bool {
+		return true
+	})
 }
 
 // 创建会议
 func (service *Service) CreateMeeting(sponsor string, title string, 
 					startDate string, endDate string, participators []model.User) bool {
-	return false
+	// 判断title是否已存在
+	if len(service.AgendaStorage.QueryMeetings(func(meeting model.Meeting) bool {
+		return meeting.GetTitle() == title
+	})) > 0 {
+		return false
+	}
+	// 判断时间合法
+	// 判断时间字符串是否符合格式要求：2012-2-2/11:23并解析字符串为Int数组
+	var startDateIntArray [5]int
+	var endDateIntArray [5]int
+	if !model.StringDateTimeToIntArray(startDate, &startDateIntArray) && !model.StringDateTimeToIntArray(endDate, &endDateIntArray) {
+		return false
+	}
+	// 判断时间数字是否合法
+	// if !model.IsValidDateTime(startDateIntArray)
+	// 判断开始和结束时间是否大小不对
+	// 判断参与者是否有其他同时段的会议
+	
+	// 创建会议
+	return true
 }
 
 // 查找会议---通过title查找

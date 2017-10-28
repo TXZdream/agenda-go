@@ -92,7 +92,6 @@ func IsExistUserFileOrCreate() (bool, StorageError) {
 func IsExistMeetingFileOrCreate() (bool, StorageError) {
 	return IsExistFileOrCreate(model.MeetingDataPath)
 }
-
 // ---------------------------------------------
 
 // 判断文件夹和文件是否存在
@@ -280,6 +279,7 @@ func (storage *Storage) DeleteUser(filter func(user model.User) bool) bool {
 		if filter(tUser) {
 			storage.Users = append(storage.Users[:index], storage.Users[index+1:]...)
 			isDeleted = true
+			break
 		}
 	}
 	return isDeleted && storage.WriteUserFile()

@@ -1,19 +1,19 @@
-package storage
+package entity
+
 import (
-	// "fmt"
-	"sync"
-	"os"
-	"io/ioutil"
 	"encoding/json"
+	"io/ioutil"
+	"os"
 	"strings"
+	"sync"
 	"github.com/txzdream/agenda-go/entity/model"
 )
 
+
 // Usage : agenda.Storage{Users: []agenda.User{}, Meetings: []agenda.Meeting{}}
 type Storage struct {
-	CurrentUser model.User
-	Users []model.User
-	Meetings []model.Meeting
+	Users       []User
+	Meetings    []Meeting
 }
 
 var instance *Storage
@@ -31,31 +31,31 @@ type StorageError string
 const (
 	// 文件夹--存在/创建
 	SucceedCreateDataDir StorageError = "Succeed In Creating Data Dir"
-	ExistFileNamedData StorageError = "Fail To Create Data Dir Because Of Exisiting A File Named \"Data\""
-	FailCreateDataDir StorageError = "Fail To Create Data Dir"
+	ExistFileNamedData   StorageError = "Fail To Create Data Dir Because Of Exisiting A File Named \"Data\""
+	FailCreateDataDir    StorageError = "Fail To Create Data Dir"
 	// 文件--创建
 	SucceedCreateDataFile StorageError = "Succeed In Creating Data File"
-	FailCreateDataFile StorageError = "Fail To Create Data File"
+	FailCreateDataFile    StorageError = "Fail To Create Data File"
 	// 文件--读取
 	SucceedReadDateFile StorageError = "Succeed In Reading Data File"
-	FailReadDataFile StorageError = "Fail To Read Data File"
+	FailReadDataFile    StorageError = "Fail To Read Data File"
 	// 文件--获取json数据
 	FailGetJsonData StorageError = "Fail To Read Json Data"
 	// 文件--写入
 	SucceedWriteDataFile StorageError = "Succeed In Writing Data File"
-	FailWriteDataFile StorageError = "Fail To Write Data File"
+	FailWriteDataFile    StorageError = "Fail To Write Data File"
 )
 
 // 判断文件夹是否存在否则创建一个，返回状态+错误信息
 func IsExistDataDirOrCreate() (bool, StorageError) {
-	file, err := os.Stat(model.DataDirPath)
+	file, err := os.Stat(DataDirPath)
 	if err == nil {
 		if file.Mode().IsDir() {
 			return true, SucceedCreateDataDir
 		}
 		return false, ExistFileNamedData
 	}
-	err = os.Mkdir(model.DataDirPath, os.ModeDir)
+	err = os.Mkdir(DataDirPath, os.ModeDir)
 	if err != nil {
 		return false, FailCreateDataDir
 	}
@@ -79,18 +79,20 @@ func IsExistFileOrCreate(fileName string) (bool, StorageError) {
 	}
 	return false, FailCreateDataFile
 }
+
 // -------------- 判断文件是否存在 ---------------
 func IsExistCurrentUserFileOrCreate() (bool, StorageError) {
-	return IsExistFileOrCreate(model.CurUserPath)
+	return IsExistFileOrCreate(CurUserPath)
 }
 
 func IsExistUserFileOrCreate() (bool, StorageError) {
-	return IsExistFileOrCreate(model.UserDataPath)
+	return IsExistFileOrCreate(UserDataPath)
 }
 
 func IsExistMeetingFileOrCreate() (bool, StorageError) {
-	return IsExistFileOrCreate(model.MeetingDataPath)
+	return IsExistFileOrCreate(MeetingDataPath)
 }
+
 // ---------------------------------------------
 
 // 判断文件夹和文件是否存在
@@ -125,7 +127,7 @@ func ReadFromFile(fileName string) ([]byte, error) {
 
 // 读取curUser文件，返回成功与否+登陆用户名/错误信息
 func (storage *Storage) ReadFromCurrentUserFile() (bool, string) {
-	currentUserName, err := ReadFromFile(model.CurUserPath)
+	currentUserName, err := ReadFromFile(CurUserPath)
 	if err != nil {
 		return false, string(FailReadDataFile)
 	}
@@ -134,14 +136,14 @@ func (storage *Storage) ReadFromCurrentUserFile() (bool, string) {
 
 // 读取User文件,读取所有用户列表，返回成功与否+错误信息
 func (storage *Storage) ReadFromUserFile() (bool, StorageError) {
-	usersJson, err :=  ReadFromFile(model.UserDataPath)
+	usersJson, err := ReadFromFile(UserDataPath)
 	if err != nil {
 		return false, FailReadDataFile
 	}
 	// 以换行符分隔再逐个解析
 	usersList := strings.Split(string(usersJson), "\n")
 	for i := 0; i < len(usersList); i++ {
-		user := model.User{}
+		user := User{}
 		if json.Unmarshal([]byte(usersList[i]), &user) != nil {
 			return false, FailGetJsonData
 		}
@@ -152,14 +154,14 @@ func (storage *Storage) ReadFromUserFile() (bool, StorageError) {
 
 // 读取Meeting文件,读取所有会议列表，返回成功与否+错误信息
 func (storage *Storage) ReadFromMeetingFile() (bool, StorageError) {
-	meetingsJson, err :=  ReadFromFile(model.MeetingDataPath)
+	meetingsJson, err := ReadFromFile(MeetingDataPath)
 	if err != nil {
 		return false, FailReadDataFile
 	}
 	// 以换行符分隔再逐个解析
 	meetingsList := strings.Split(string(meetingsJson), "\n")
 	for i := 0; i < len(meetingsList); i++ {
-		meeting := model.Meeting{}
+		meeting := Meeting{}
 		if json.Unmarshal([]byte(meetingsList[i]), &meeting) != nil {
 			return false, FailGetJsonData
 		}
@@ -168,23 +170,13 @@ func (storage *Storage) ReadFromMeetingFile() (bool, StorageError) {
 	return true, SucceedReadDateFile
 }
 
-// 从文件中读取所有数据
+// 从文件中读取用户和会议数据
 func (storage *Storage) ReadFromDataFile() (bool, StorageError) {
 	// 文件是否存在，否则创建
 	result, storageError := IsExistDataFilesOrCreate()
 	if !result {
 		return result, storageError
 	}
-	// 读取当前用户名
-	var currentUserName string
-	result, currentUserName = storage.ReadFromCurrentUserFile()
-	if !result {
-		return result, StorageError(currentUserName)
-	}
-	// TODO
-	// 判断当前用户是否存在，如果存在则登陆且读取后面的会议内容，
-	// 否则未登陆
-
 	// 读取用户列表
 	result, storageError = storage.ReadFromUserFile()
 	if !result {
@@ -207,41 +199,40 @@ func WriteToFile(fileName string, content []byte) bool {
 }
 
 // 写入当前用户信息
-func (storage *Storage) WriteToCurrentUserFile() bool {
-	return WriteToFile(model.CurUserPath, []byte(storage.CurrentUser.UserName))
+func (storage *Storage) WriteToCurrentUserFile(CurrentUserName string) bool {
+	return WriteToFile(CurUserPath, []byte(CurrentUserName))
 }
 
 // 写入User.json
 func (storage *Storage) WriteUserFile() bool {
 	var userStringList []string
-	for i:= 0; i < len(storage.Users); i++ {
+	for i := 0; i < len(storage.Users); i++ {
 		userJson, err := json.Marshal(storage.Users[i])
 		if err != nil {
 			return false
 		}
 		userStringList = append(userStringList, string(userJson))
 	}
-	return WriteToFile(model.UserDataPath, []byte(strings.Join(userStringList, "\n")))
+	return WriteToFile(UserDataPath, []byte(strings.Join(userStringList, "\n")))
 }
 
 // 写入Meeting.json
 func (storage *Storage) WriteMeetingFile() bool {
 	var meetingStringList []string
-	for i:= 0; i < len(storage.Meetings); i++ {
+	for i := 0; i < len(storage.Meetings); i++ {
 		meetingJson, err := json.Marshal(storage.Meetings[i])
 		if err != nil {
 			return false
 		}
 		meetingStringList = append(meetingStringList, string(meetingJson))
 	}
-	return WriteToFile(model.MeetingDataPath, []byte(strings.Join(meetingStringList, "\n")))
+	return WriteToFile(MeetingDataPath, []byte(strings.Join(meetingStringList, "\n")))
 }
 
-// 退出登陆，清空当前用户，把用户列表数据和会议列表数据写入
-func (storage *Storage) LogOutStorage() (bool, StorageError) {
-	storage.CurrentUser = model.User{}	// 清空当前用户
+// 退出登陆，清空当前用户，把当前用户名、用户列表数据和会议列表数据写入
+func (storage *Storage) LogOutStorage(CurrentUserName string) (bool, StorageError) {
 	instance = nil
-	if !storage.WriteToCurrentUserFile() {
+	if !storage.WriteToCurrentUserFile(CurrentUserName) {
 		return false, FailWriteDataFile
 	}
 	if !storage.WriteUserFile() {
@@ -255,15 +246,15 @@ func (storage *Storage) LogOutStorage() (bool, StorageError) {
 
 // ----------- 对用户列表进行操作，需要把改动写入文件，并返回是否成功 ------------
 // 创建用户
-func (storage *Storage) CreateUser(user model.User) bool {
+func (storage *Storage) CreateUser(user User) bool {
 	storage.Users = append(storage.Users, user)
 	return storage.WriteUserFile()
 }
 
 // 根据filter函数查找用户
-func (storage *Storage) QueryUsers(filter func(user model.User) bool) []model.User {
-	var users []model.User
-	for _, tUser := range storage.Users { 
+func (storage *Storage) QueryUsers(filter func(user User) bool) []User {
+	var users []User
+	for _, tUser := range storage.Users {
 		if filter(tUser) {
 			users = append(users, tUser)
 		}
@@ -272,7 +263,7 @@ func (storage *Storage) QueryUsers(filter func(user model.User) bool) []model.Us
 }
 
 // 更新用户信息，返回是否是否更新成功
-func (storage *Storage) UpdateUser(filter func(user model.User) bool, updatedUser model.User) bool {
+func (storage *Storage) UpdateUser(filter func(user User) bool, updatedUser User) bool {
 	for index, tUser := range storage.Users {
 		if filter(tUser) {
 			storage.Users[index] = updatedUser
@@ -283,29 +274,30 @@ func (storage *Storage) UpdateUser(filter func(user model.User) bool, updatedUse
 }
 
 // 删除用户
-func (storage *Storage) DeleteUser(filter func(user model.User) bool) bool {
-	isDeleted := false	// 是否进行过删除
-	for index, tUser := range storage.Users { 
+func (storage *Storage) DeleteUser(filter func(user User) bool) bool {
+	isDeleted := false // 是否进行过删除
+	for index, tUser := range storage.Users {
 		if filter(tUser) {
-			storage.Users = append(storage.Users[:index], storage.Users[index + 1:]...)			
+			storage.Users = append(storage.Users[:index], storage.Users[index+1:]...)
 			isDeleted = true
 		}
 	}
 	return isDeleted && storage.WriteUserFile()
 }
+
 // ------------------------------------------------------------------
 
 // ----------- 对会议列表进行操作，需要把改动写入文件，并返回是否成功 ------------
 // 创建会议
-func (storage *Storage) CreateMeeting(meeting model.Meeting) bool {
+func (storage *Storage) CreateMeeting(meeting Meeting) bool {
 	storage.Meetings = append(storage.Meetings, meeting)
 	return storage.WriteMeetingFile()
 }
 
 // 根据filter函数查找会议
-func (storage *Storage) QueryMeetings(filter func(meeting model.Meeting) bool) []model.Meeting {
-	var meetings []model.Meeting
-	for _, tMeeting := range storage.Meetings { 
+func (storage *Storage) QueryMeetings(filter func(meeting Meeting) bool) []Meeting {
+	var meetings []Meeting
+	for _, tMeeting := range storage.Meetings {
 		if filter(tMeeting) {
 			meetings = append(meetings, tMeeting)
 		}
@@ -314,7 +306,7 @@ func (storage *Storage) QueryMeetings(filter func(meeting model.Meeting) bool) [
 }
 
 // 更新会议信息，返回是否是否更新成功
-func (storage *Storage) UpdateMeeting(filter func(meeting model.Meeting) bool, updatedMeeting model.Meeting) bool {
+func (storage *Storage) UpdateMeeting(filter func(meeting Meeting) bool, updatedMeeting Meeting) bool {
 	for index, tMeeting := range storage.Meetings {
 		if filter(tMeeting) {
 			storage.Meetings[index] = updatedMeeting
@@ -325,14 +317,15 @@ func (storage *Storage) UpdateMeeting(filter func(meeting model.Meeting) bool, u
 }
 
 // 删除会议
-func (storage *Storage) DeleteMeeting(filter func(meeting model.Meeting) bool) bool {
-	isDeleted := false	// 是否进行过删除
-	for index, tMeeting := range storage.Meetings { 
+func (storage *Storage) DeleteMeeting(filter func(meeting Meeting) bool) bool {
+	isDeleted := false // 是否进行过删除
+	for index, tMeeting := range storage.Meetings {
 		if filter(tMeeting) {
-			storage.Meetings = append(storage.Meetings[:index], storage.Meetings[index + 1:]...)			
+			storage.Meetings = append(storage.Meetings[:index], storage.Meetings[index+1:]...)
 			isDeleted = true
 		}
 	}
 	return isDeleted && storage.WriteUserFile()
 }
+
 // ------------------------------------------------------------------

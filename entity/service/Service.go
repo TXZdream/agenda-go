@@ -1,26 +1,38 @@
-package service
+package entity
+
 import (
 	"github.com/txzdream/agenda-go/entity/model"
 	"github.com/txzdream/agenda-go/entity/storage"
 )
 
 type Service struct {
-	service *storage.Storage
+	AgendaStorage *Storage
 }
 
-// ??退出Agenda
-func (service *Service) StartAgenda() {
-	// return false
-}
+type ServiceStat int
+// const (
+// 	LOGIN ServiceStat = 
+// 	LOGOUT ServiceStat
+// )
 
-// ?? 开启Agenda
+// 开启Agenda
+// 获取单例的storage
+// 获取数据文件各种信息 --- 返回true/false&返回报错信息
+func StartAgenda(service *Service) (bool, StorageError) {
+	service.AgendaStorage = GetStorageInstance()
+	return service.AgendaStorage.ReadFromDataFile()
+}
+// 判断
+//func AutoUserLogin(service *Service) ()
+
+// ?? 退出Agenda
 func (service *Service) QuitAgenda() {
 	// return false
 }
 
 // 用户登陆
-func (service *Service) UserLogin(userName string, password string) bool {
-	return false
+func (service *Service) UserLogin(userName string, password string) (bool, StorageError) {
+	return service.AgendaStorage.ReadFromDataFile()
 }
 
 // 用户注册
@@ -34,29 +46,29 @@ func (service *Service) DeleteUser(userName string, password string) bool {
 }
 
 // 列出用户
-func (service *Service) ListAllUsers(userName string, password string) []model.User {
-	return []model.User{}
+func (service *Service) ListAllUsers(userName string, password string) []User {
+	return []User{}
 }
 
 // 创建会议
 func (service *Service) CreateMeeting(sponsor string, title string, 
-					startDate string, endDate string, participators []model.User) bool {
+					startDate string, endDate string, participators []User) bool {
 	return false
 }
 
 // 查找会议---通过title查找
-func (service *Service) MeetingQueryByTitle(userName string, title string) []model.Meeting {
-	return []model.Meeting{}
+func (service *Service) MeetingQueryByTitle(userName string, title string) []Meeting {
+	return []Meeting{}
 }
 
 // 查找会议---通过usernsme(作为会议发起者和参与者)和会议起始时间查找
-func (service *Service) MeetingQueryByUserAndTime(userName string, startDate string, endDate string) []model.Meeting {
-	return []model.Meeting{}
+func (service *Service) MeetingQueryByUserAndTime(userName string, startDate string, endDate string) []Meeting {
+	return []Meeting{}
 }
 
 // 列出该用户发起或参与的所有会议
-func (service *Service) ListAllMeetings(userName string) []model.Meeting {
-	return []model.Meeting{}
+func (service *Service) ListAllMeetings(userName string) []Meeting {
+	return []Meeting{}
 }
 
 // 列出该用户发起的所有会议

@@ -1,7 +1,12 @@
 package main
 import (
+<<<<<<< HEAD
 	"github.com/txzdream/agenda-go/entity/service"
 	"github.com/txzdream/agenda-go/entity/model"
+=======
+	model "github.com/txzdream/agenda-go/entity/model"
+	service "github.com/txzdream/agenda-go/entity/service"
+>>>>>>> upstream/master
 	"fmt"
 )
 
@@ -10,9 +15,13 @@ func main() {
 	service.StartAgenda(&k)
 	fmt.Println(k)
 	fmt.Println(k.AgendaStorage)
+<<<<<<< HEAD
 	aa := []model.User{}
 	aa = append(aa, model.User{"sads", "SDfd", "asds", "sadsd"})
 	k.AgendaStorage.Users = aa
+=======
+	k.AgendaStorage.CurrentUser = model.User{"sads", "SDfd", "asds", "sadsd"}
+>>>>>>> upstream/master
 	fmt.Println(k.AgendaStorage)
 
 	var m service.Service

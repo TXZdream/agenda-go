@@ -42,6 +42,22 @@ func (meeting *Meeting) IsParticipators(userName string) bool {
 	return false
 }
 
+// 删除某个参与者
+func (meeting *Meeting) DeleteParticipator(participator string) bool {
+	for i := 0; i < len(meeting.GetParticipators()); i++ {
+		if meeting.GetParticipators()[i] == participator {
+			meeting.SetParticipators(append(meeting.GetParticipators()[:i], meeting.GetParticipators()[i+1:]...))
+			return true
+		}
+	}
+	return false
+}
+
+// 获得参与者的总人数
+func (meeting Meeting) GetParticipatorsNumber() int {
+	return len(meeting.Participators)
+}
+
 func (meeting Meeting) GetStartDate() string {
 	return meeting.StartDate
 }

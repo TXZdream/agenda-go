@@ -153,20 +153,11 @@ func (service *Service) GetTimeConflictMeetings(startDateString string, endDateS
 // 创建会议 - 检查title是否唯一、时间是否合法、参与者和发起者是否可参加会议椅
 func (service *Service) CreateMeeting(sponsor string, title string, 
 					startDateString string, endDateString string, participators []string) bool {
-	// 判断title是否已存在
+	// 判断title是否已存在 / 判断时间合法 / 判断发起者和参与者是否都已注册
 	if len(service.AgendaStorage.QueryMeetings(func(meeting model.Meeting) bool {
 		return meeting.GetTitle() == title
-	})) > 0 {
-		return false
-	}
-
-	// 判断时间合法
-	if !IsValidStartAndEndDateTime(&startDateString, &endDateString) {
-		return false
-	}
-	
-	// 判断发起者和参与者是否都已注册
-	if !service.IsRegisteredUser(sponsor) || !service.IsRegisteredUsers(participators) {
+	})) > 0 || !IsValidStartAndEndDateTime(&startDateString, &endDateString) ||
+	!service.IsRegisteredUser(sponsor) || !service.IsRegisteredUsers(participators) {
 		return false
 	}
 

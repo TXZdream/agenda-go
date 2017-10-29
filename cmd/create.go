@@ -29,7 +29,6 @@ var ucreateCmd = &cobra.Command{
 	Short: "create user account",
 	Long: `Use this command to create a new user account.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("create called")
 		// get service
 		var Service service.Service
 		service.StartAgenda(&Service)
@@ -101,21 +100,24 @@ var mcreateCmd = &cobra.Command{
 		// show all users
 		userList := Service.ListAllUsers()
 		for i, v := range userList {
-			fmt.Printf("%d. %s\n", i, v.GetUserName())
+			fmt.Printf("%d. %s\n", i + 1, v.GetUserName())
 		}
 
-		fmt.Printf("Please choose some of them to join your meeting(seprate with space): ")
+		fmt.Printf("Please choose the number of them to join your meeting(seprate with space): ")
 		var chosenUsers, tmp string
-		fmt.Scanf("%s", &chosenUsers)
+		fmt.Scanln(&chosenUsers)
 		fmt.Scanf("%d", &tmp)
 		chosenList := strings.Split(" ", chosenUsers)
+		fmt.Println(chosenUsers)
+		fmt.Println(chosenList)
 		
 		for _, v := range chosenList {
 			i, err := strconv.Atoi(v)
 			if err != nil {
 				fmt.Fprintln(os.Stderr, "error: Invalid input.")
+				os.Exit(0)
 			}
-			participator = append(participator, userList[i].GetUserName())
+			participator = append(participator, userList[i - 1].GetUserName())
 		}
 
 		// scan start time and end time

@@ -19,6 +19,12 @@ func StartAgenda(service *Service) (bool, storage.StorageError) {
 	return service.AgendaStorage.ReadFromDataFile()
 }
 
+// 退出Agenda：把保存当前登陆的用户名到文件中
+// 若用户退出登陆，则把空字符串写进文件
+func (service *Service) QuitAgenda(currentUserName string) bool {
+	return service.AgendaStorage.WriteToCurrentUserFile(currentUserName)
+}
+
 // 判断是否能够自动登陆，即curUser中是否存在可登录的用户名
 // 存在有效用户名，返回true+用户名，否则返回false+空字符串
 func (service *Service) AutoUserLogin() (bool, string) {
@@ -34,12 +40,6 @@ func (service *Service) AutoUserLogin() (bool, string) {
 		return true, currentUserName
 	}
 	return false, ""
-}
-
-// 退出Agenda：把保存当前登陆的用户名到文件中
-// 若用户退出登陆，则把空字符串写进文件
-func (service *Service) QuitAgenda(currentUserName string) bool {
-	return service.AgendaStorage.WriteToCurrentUserFile(currentUserName)
 }
 
 // 没有可自动登陆的用户，需要用户输入用户名和密码登陆

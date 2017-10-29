@@ -40,12 +40,8 @@ var leaveCmd = &cobra.Command{
 			fmt.Fprintln(os.Stderr, "error: Meeting theme is required.")
 			os.Exit(0)
 		}
-		ok = Service.QuitMeeting(name, meetingName)
-		if ok {
-			fmt.Println("Finish leaving meeting.")
-		} else {
-			fmt.Println("Can not leave this meeting.")
-		}
+		// TODO: leave meeting
+		fmt.Println(name)
 	},
 }
 

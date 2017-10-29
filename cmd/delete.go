@@ -42,7 +42,7 @@ var udeleteCmd = &cobra.Command{
 			// hints to ensure and enter password to delete User
 			var password string
 			fmt.Println("Ensure to delete User : ", username)
-			fmt.Println("Plase enter password :")
+			fmt.Print("Plase enter password: ")
 			fmt.Scanf("%s", &password)
 			// chech the password
 			ok := Service.UserLogin(username, password)

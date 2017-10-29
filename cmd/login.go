@@ -27,7 +27,6 @@ var loginCmd = &cobra.Command{
 	Short: "user login",
 	Long: `Use this command to sign in to the system.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("login called")
 		// get Service
 		var Service service.Service
 		service.StartAgenda(&Service)
@@ -40,7 +39,7 @@ var loginCmd = &cobra.Command{
 		}
 		// wait for password
 		var password string
-		fmt.Println("Please enter the password :")
+		fmt.Printf("Please enter the password: ")
 		fmt.Scanf("%s", &password)
 		// check whether user is registed
 		ok := Service.IsRegisteredUser(username)
@@ -55,7 +54,7 @@ var loginCmd = &cobra.Command{
 			if ok == false {
 				if (times < 2) {
 					times++
-					fmt.Println("Wrong password, Please try again :")
+					fmt.Print("Wrong password, Please try again: ")
 					fmt.Scanf("%s", &password)
 				} else {
 					fmt.Fprintln(os.Stderr, "error : Wrong password")

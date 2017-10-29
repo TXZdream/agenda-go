@@ -28,7 +28,6 @@ var ushowCmd = &cobra.Command{
 	Short: "Show user account",
 	Long: `Use this command to show every user's information.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("show called")
 		var Service service.Service
 		service.StartAgenda(&Service)
 		// check whether user login

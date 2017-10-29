@@ -51,15 +51,15 @@ var ucreateCmd = &cobra.Command{
 		times := 1
 		for {
 			if times == 1 {
-				fmt.Println("Please enter the password you want to create :")
+				fmt.Print("Please enter the password you want to create: ")
 				fmt.Scanf("%s", &createPassword)
 			} else {
-				fmt.Println("Please enter the password again :")
+				fmt.Print("Please enter the password again: ")
 				fmt.Scanf("%s", &createPassword)
 				if createPassword == prePassword {
 					break
 				} else {
-					fmt.Println("\nThe two passwords entered are not consistent. \nAnd restart setting password.\n")
+					fmt.Println("The two passwords entered are not consistent. \nPlease restart setting password.")
 				}
 			}
 			times *= -1
@@ -72,6 +72,7 @@ var ucreateCmd = &cobra.Command{
 			os.Exit(1)
 		}
 		fmt.Println("Sucess : Register ", createUsername)
+		fmt.Println("You have logged in automatically.")
 		Service.QuitAgenda(createUsername)
 		os.Exit(0)
 	},

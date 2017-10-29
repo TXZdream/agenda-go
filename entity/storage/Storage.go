@@ -228,6 +228,8 @@ func (storage *Storage) WriteMeetingFile() bool {
 	return WriteToFile(model.MeetingDataPath, []byte(strings.Join(meetingStringList, "\n")))
 }
 
+
+
 // 退出登陆，清空当前用户，把当前用户名、用户列表数据和会议列表数据写入
 func (storage *Storage) LogOutStorage(CurrentUserName string) (bool, StorageError) {
 	instance = nil
@@ -315,9 +317,9 @@ func (storage *Storage) UpdateMeeting(filter func(meeting model.Meeting) bool, u
 	}
 	return false
 }
-
+ 
 // 删除会议
-func (storage *Storage) DeleteMeeting(filter func(meeting model.Meeting) bool) bool {
+func (storage *Storage) DeleteMeetings(filter func(meeting model.Meeting) bool) bool {
 	isDeleted := false // 是否进行过删除
 	for index, tMeeting := range storage.Meetings {
 		if filter(tMeeting) {

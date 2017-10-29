@@ -15,12 +15,11 @@
 package cmd
 
 import (
-	// "strconv"
-	// "strings"
+	"strconv"
+	"strings"
 	"os"
 	"fmt"
 	"github.com/spf13/cobra"
-	// model "github.com/txzdream/agenda-go/entity/model"
 	service "github.com/txzdream/agenda-go/entity/service"
 )
 
@@ -83,55 +82,50 @@ var mcreateCmd = &cobra.Command{
 	Short: "create meeting",
 	Long: `Use this command to create a new meeting.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		// var Service service.Service
-		// service.StartAgenda(&Service)
+		var Service service.Service
+		service.StartAgenda(&Service)
 
-		// ok, name := Service.AutoUserLogin()
-		// if !ok {
-		// 	fmt.Fprintln(os.Stderr, "error: No current logged user.")
-		// 	os.Exit(0)
-		// }
+		ok, name := Service.AutoUserLogin()
+		if !ok {
+			fmt.Fprintln(os.Stderr, "error: No current logged user.")
+			os.Exit(0)
+		}
 
-		// if meetingName == "" {
-		// 	fmt.Fprintln(os.Stderr, "error: Meeting name is required.")
-		// 	os.Exit(0)
-		// }
-		// var begin, end string
-		// var participator []model.User
+		if meetingName == "" {
+			fmt.Fprintln(os.Stderr, "error: Meeting name is required.")
+			os.Exit(0)
+		}
+		var begin, end string
+		var participator []string
 
-		// // show all users
-		// userList := Service.ListAllUsers()
-		// for i, v := range userList {
-		// 	fmt.Printf("%d. %s\n", i, v.GetUserName())
-		// }
+		// show all users
+		userList := Service.ListAllUsers()
+		for i, v := range userList {
+			fmt.Printf("%d. %s\n", i, v.GetUserName())
+		}
 
-		// fmt.Printf("Please choose some of them to join your meeting(seprate with space): ")
-		// var chosenUsers, tmp string
-		// fmt.Scanf("%s", &chosenUsers)
-		// fmt.Scanf("%d", &tmp)
-		// chosenList := strings.Split(" ", chosenUsers)
+		fmt.Printf("Please choose some of them to join your meeting(seprate with space): ")
+		var chosenUsers, tmp string
+		fmt.Scanf("%s", &chosenUsers)
+		fmt.Scanf("%d", &tmp)
+		chosenList := strings.Split(" ", chosenUsers)
 		
-		// for _, v := range chosenList {
-		// 	i, err := strconv.Atoi(v)
-		// 	if err != nil {
-		// 		fmt.Fprintln(os.Stderr, "error: Invalid input.")
-		// 	}
-		// 	participator = append(participator, userList[i])
-		// }
+		for _, v := range chosenList {
+			i, err := strconv.Atoi(v)
+			if err != nil {
+				fmt.Fprintln(os.Stderr, "error: Invalid input.")
+			}
+			participator = append(participator, userList[i].GetUserName())
+		}
 
-		// // scan start time and end time
-		// fmt.Printf("Please input start time(format: YYYY-MM-DD/HH:MM): ")
-		// fmt.Scanf("%s", &begin)
-		// fmt.Scanf("%d", &tmp)
-		// fmt.Scanf("%s", &end)
-		// fmt.Scanf("%d", &tmp)
+		// scan start time and end time
+		fmt.Printf("Please input start time(format: YYYY-MM-DD/HH:MM): ")
+		fmt.Scanf("%s", &begin)
+		fmt.Scanf("%d", &tmp)
+		fmt.Scanf("%s", &end)
+		fmt.Scanf("%d", &tmp)
 		
-		// //  small tips from xiaxzh : 
-		// // 'participators' segement required by 
-		// //  func (service *Service) CreateMeeting(sponsor string, title string,  
-		// //                     startDateString string, endDateString string, participators []string) bool
-		// //  should be []string but not [] model.User
-	    // Service.CreateMeeting(name, meetingName, begin, end, participator)
+	    Service.CreateMeeting(name, meetingName, begin, end, participator)
 	},
 }
 

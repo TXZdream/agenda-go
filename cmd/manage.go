@@ -15,8 +15,6 @@
 package cmd
 
 import (
-	"strconv"
-	"strings"
 	"os"
 	"fmt"
 	service "github.com/txzdream/agenda-go/entity/service"
@@ -42,42 +40,8 @@ var manageCmd = &cobra.Command{
 			fmt.Fprintln(os.Stderr, "error: Meeting theme is required.")
 			os.Exit(0)
 		}
-
-		meetingList := Service.MeetingQueryByTitle(name, meetingName)
-		if len(meetingList) == 0 {
-			fmt.Println("No matching meeting with the given theme.")
-			os.Exit(1)
-		}
-
-		var participator []string
-		fmt.Println("Participators:")
-		for i, v := range meetingList[0].GetParticipators() {
-			participator = append(participator, v)
-			fmt.Printf("%d. %s\n", i, v)
-		}
-		fmt.Println("Please input the number you want to remove: ")
-		var inputNums string
-		var tmp int
-		fmt.Scanf("%s", &inputNums)
-		fmt.Scanf("%d", &tmp)
-		chosenList := strings.Split(" ", inputNums)
-		var toBeRemovedParticipators []string
-		for _, v := range chosenList {
-			num, err := strconv.Atoi(v)
-			if err != nil {
-				fmt.Fprintln(os.Stderr, "error: Invalid input")
-				os.Exit(1)
-			}
-			toBeRemovedParticipators = append(toBeRemovedParticipators, participator[num])
-		}
-		for _, v := range toBeRemovedParticipators {
-			ok := Service.DeleteParticipatorByTitle(name, meetingName, v)
-			if ok {
-				fmt.Printf("%s was removed.\n", v)
-			} else {
-				fmt.Printf("%s can not be removed.\n", v)
-			}
-		}
+		//TODO: manage meeting
+		fmt.Println(name)
 	},
 }
 

@@ -19,12 +19,6 @@ func StartAgenda(service *Service) (bool, storage.StorageError) {
 	return service.AgendaStorage.ReadFromDataFile()
 }
 
-// 退出Agenda：把保存当前登陆的用户名到文件中
-// 若用户退出登陆，则把空字符串写进文件
-func (service *Service) QuitAgenda(currentUserName string) bool {
-	return service.AgendaStorage.WriteToCurrentUserFile(currentUserName)
-}
-
 // 判断是否能够自动登陆，即curUser中是否存在可登录的用户名
 // 存在有效用户名，返回true+用户名，否则返回false+空字符串
 func (service *Service) AutoUserLogin() (bool, string) {
@@ -40,6 +34,12 @@ func (service *Service) AutoUserLogin() (bool, string) {
 		return true, currentUserName
 	}
 	return false, ""
+}
+
+// 退出Agenda：把保存当前登陆的用户名到文件中
+// 若用户退出登陆，则把空字符串写进文件
+func (service *Service) QuitAgenda(currentUserName string) bool {
+	return service.AgendaStorage.WriteToCurrentUserFile(currentUserName)
 }
 
 // 没有可自动登陆的用户，需要用户输入用户名和密码登陆
@@ -67,12 +67,32 @@ func (service *Service) UserRegister(userName string, password string,
 		model.User{UserName: userName, Password: password, Email: email, Phone: phone})
 }
 
+// // 删除用户，判断是否存在同名用户再进行删除 -- original
+// func (service *Service) DeleteUser(userName string, password string) bool {
+// 	password = tools.MD5Encryption(password)
+// 	// 存在同名用户则进行删除操作
+// 	if !service.AgendaStorage.DeleteUser(func(user model.User) bool {
+// 		return user.GetUserName() == userName && user.GetPassword() == password
+// 	}) {
+// 		return false
+// 	}
+// 	// 删除所有发起会议
+// 	service.DeleteAllMeetings(userName)
+// 	// 退出所有参与会议并删除参与人数为0的会议
+// 	meetings := service.ListAllParticipateMeetings(userName)
+// 	for _, meeting := range meetings {
+// 		service.QuitMeeting(userName, meeting.GetTitle())
+// 	}
+// 	return true
+// }
+
 // 删除用户，判断是否存在同名用户再进行删除
-func (service *Service) DeleteUser(userName string, password string) bool {
-	password = tools.MD5Encryption(password)
+func (service *Service) DeleteUser(userName string) bool {
+	// password = tools.MD5Encryption(password)
 	// 存在同名用户则进行删除操作
 	if !service.AgendaStorage.DeleteUser(func(user model.User) bool {
-		return user.GetUserName() == userName && user.GetPassword() == password
+		// return user.GetUserName() == userName && user.GetPassword() == password
+		return user.GetUserName() == userName		
 	}) {
 		return false
 	}
@@ -316,4 +336,13 @@ func (service *Service) DeleteAllMeetings(sponsor string) bool {
 	})
 }
 
-
+// xiaxzh add ListUserInformation
+func (service *Service) ListUserInformation(username string) (bool, string, string) {
+	users := service.AgendaStorage.QueryUsers(func(user model.User) bool {
+		return user.GetUserName() == username
+	})
+	if len(users) == 0 {
+		return false, "", ""
+	}
+	return true, users[0].GetEmail(), users[0].GetPhone()
+}

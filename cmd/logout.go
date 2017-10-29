@@ -27,7 +27,6 @@ var logoutCmd = &cobra.Command{
 	Short: "Sign out",
 	Long: `Use this command to sign out`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("logout called")
 		// get service
 		var Service service.Service
 		service.StartAgenda(&Service)

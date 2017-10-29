@@ -21,6 +21,8 @@ import (
 )
 
 var meetingName string
+var startTime string
+var endTime string
 
 // meetingCmd represents the meeting command
 var meetingCmd = &cobra.Command{

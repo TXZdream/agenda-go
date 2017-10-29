@@ -20,7 +20,6 @@ import (
 	"os"
 	"fmt"
 	"github.com/spf13/cobra"
-	model "github.com/txzdream/agenda-go/entity/model"
 	service "github.com/txzdream/agenda-go/entity/service"
 )
 
@@ -53,7 +52,7 @@ var mcreateCmd = &cobra.Command{
 			os.Exit(0)
 		}
 		var begin, end string
-		var participator []model.User
+		var participator []string
 
 		// show all users
 		userList := Service.ListAllUsers()
@@ -71,8 +70,9 @@ var mcreateCmd = &cobra.Command{
 			i, err := strconv.Atoi(v)
 			if err != nil {
 				fmt.Fprintln(os.Stderr, "error: Invalid input.")
+				os.Exit(1)
 			}
-			participator = append(participator, userList[i])
+			participator = append(participator, userList[i].GetUserName())
 		}
 
 		// scan start time and end time

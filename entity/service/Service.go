@@ -39,7 +39,7 @@ func (service *Service) AutoUserLogin() (bool, string) {
 // 退出Agenda：把保存当前登陆的用户名到文件中
 // 若用户退出登陆，则把空字符串写进文件
 func (service *Service) QuitAgenda(currentUserName string) bool {
-	return service.WriteToCurrentUserFile(currentUserName)
+	return service.AgendaStorage.WriteToCurrentUserFile(currentUserName)
 }
 
 // 没有可自动登陆的用户，需要用户输入用户名和密码登陆
@@ -63,7 +63,8 @@ func (service *Service) UserRegister(userName string, password string,
 	}
 	// 对传入的md5密码进行加密
 	password = tools.MD5Encryption(password)
-	return service.AgendaStorage.CreateUser(model.User{UserName: userName, Password: password, Email: email, Phone: phone})
+	return service.AgendaStorage.CreateUser(
+		model.User{UserName: userName, Password: password, Email: email, Phone: phone})
 }
 
 // 删除用户，判断是否存在同名用户再进行删除
@@ -78,7 +79,7 @@ func (service *Service) DeleteUser(userName string, password string) bool {
 	// 删除所有发起会议
 	service.DeleteAllMeetings(userName)
 	// 退出所有参与会议并删除参与人数为0的会议
-	meetings := ListAllParticipateMeetings(userName)
+	meetings := service.ListAllParticipateMeetings(userName)
 	for _, meeting := range meetings {
 		service.QuitMeeting(userName, meeting.GetTitle())
 	}
@@ -123,14 +124,14 @@ func IsValidStartAndEndDateTime(startDateString *string, endDateString *string) 
 
 // 判断单个用户是否已注册
 func (service *Service) IsRegisteredUser(userName string) bool {
-	return len(service.AgendaStorage.QueryUsers(filter func(user model.User) bool {
+	return len(service.AgendaStorage.QueryUsers(func(user model.User) bool {
 		return user.GetUserName() == userName
 	})) == 1
 }
 
 // 判断多个用户是否都已注册
 func (service *Service) IsRegisteredUsers(userNames []string) bool {
-	return len(service.AgendaStorage.QueryUsers(filter func(user model.User) bool {
+	return len(service.AgendaStorage.QueryUsers(func(user model.User) bool {
 		for _, userName := range userNames {
 			if userName == user.GetUserName() {
 				return true
@@ -170,7 +171,7 @@ func (service *Service) CreateMeeting(sponsor string, title string,
 	}
 
 	// 获取同时段冲突会议
-	timeConflictMeetings := service.AgendaStorage.GetTimeConflictMeetings(startDateString, endDateString)
+	timeConflictMeetings := service.GetTimeConflictMeetings(startDateString, endDateString)
 
 	// 判断发起者或参与者是否参与了冲突会议
 	for _, tMeeting := range timeConflictMeetings {
@@ -201,8 +202,7 @@ func (service *Service) AddParticipatorByTitle(sponsor string, title string, par
 
 	meeting := meetings[0]	// 获取该会议
 	// 获取同时段冲突会议
-	timeConflictMeetings := service.AgendaStorage.GetTimeConflictMeetings(
-								meeting.GetStartDate(), meeting.GetEndDate())
+	timeConflictMeetings := service.GetTimeConflictMeetings(meeting.GetStartDate(), meeting.GetEndDate())
 	// 判断参与者是否参与了冲突会议
 	for _, tMeeting := range timeConflictMeetings {
 		if tMeeting.IsParticipators(participator) || tMeeting.GetSponsor() == participator {
@@ -277,14 +277,14 @@ func (service *Service) ListAllMeetings(userName string) []model.Meeting {
 }
 
 // 列出该用户发起的所有会议
-func (service *Service) ListAllSponsorMeetings(userName string, password string) []model.Meeting {
+func (service *Service) ListAllSponsorMeetings(userName string) []model.Meeting {
 	return service.AgendaStorage.QueryMeetings(func(meeting model.Meeting) bool {
 		return meeting.GetSponsor() == userName
 	})
 }
 
 // 列出该用户参加的所有会议
-func (service *Service) ListAllParticipateMeetings(userName string, password string) []model.Meeting {
+func (service *Service) ListAllParticipateMeetings(userName string) []model.Meeting {
 	return service.AgendaStorage.QueryMeetings(func(meeting model.Meeting) bool {
 		return meeting.IsParticipators(userName)
 	})
@@ -325,10 +325,4 @@ func (service *Service) DeleteAllMeetings(sponsor string) bool {
 	})
 }
 
-// 发起者增加会议参与者
-// 判断参与者是否会时间冲突
-
-
-// 发起者删除会议参与者
-// 因此造成会议 参与者 人数为0，则会议也将被删除
 

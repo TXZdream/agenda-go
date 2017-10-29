@@ -228,6 +228,8 @@ func (storage *Storage) WriteMeetingFile() bool {
 	return WriteToFile(model.MeetingDataPath, []byte(strings.Join(meetingStringList, "\n")))
 }
 
+
+
 // 退出登陆，清空当前用户，把当前用户名、用户列表数据和会议列表数据写入
 func (storage *Storage) LogOutStorage(CurrentUserName string) (bool, StorageError) {
 	instance = nil

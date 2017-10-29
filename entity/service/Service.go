@@ -36,9 +36,10 @@ func (service *Service) AutoUserLogin() (bool, string) {
 	return false, ""
 }
 
-// ?? 退出Agenda
-func (service *Service) QuitAgenda() {
-	// return false
+// 退出Agenda：把保存当前登陆的用户名到文件中
+// 若用户退出登陆，则把空字符串写进文件
+func (service *Service) QuitAgenda(currentUserName string) bool {
+	return service.WriteToCurrentUserFile(currentUserName)
 }
 
 // 没有可自动登陆的用户，需要用户输入用户名和密码登陆
@@ -68,16 +69,20 @@ func (service *Service) UserRegister(userName string, password string,
 // 删除用户，判断是否存在同名用户再进行删除
 func (service *Service) DeleteUser(userName string, password string) bool {
 	password = tools.MD5Encryption(password)
-	// 根据获得的用户名判断是否存在该用户名
-	if len(service.AgendaStorage.QueryUsers(func(user model.User) bool {
-		return user.GetUserName() == userName && user.GetPassword() == password
-	})) != 1 {
-		return false		// 不存在同名用户则删除失败
-	}
 	// 存在同名用户则进行删除操作
-	return service.AgendaStorage.DeleteUser(func(user model.User) bool {
+	if !service.AgendaStorage.DeleteUser(func(user model.User) bool {
 		return user.GetUserName() == userName && user.GetPassword() == password
-	})
+	}) {
+		return false
+	}
+	// 删除所有发起会议
+	service.DeleteAllMeetings(userName)
+	// 退出所有参与会议并删除参与人数为0的会议
+	meetings := ListAllParticipateMeetings(userName)
+	for _, meeting := range meetings {
+		service.QuitMeeting(userName, meeting.GetTitle())
+	}
+	return true
 }
 
 // 列出所有用户
@@ -238,7 +243,6 @@ func (service *Service) DeleteParticipatorByTitle(sponsor string, title string, 
 		})
 	}
 }
-
 
 // 查询会议---通过用户名(用户作为发起者/参与者)和会议title查找
 func (service *Service) MeetingQueryByTitle(userName string, title string) []model.Meeting {

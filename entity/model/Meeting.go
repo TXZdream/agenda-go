@@ -53,6 +53,16 @@ func (meeting *Meeting) DeleteParticipator(participator string) bool {
 	return false
 }
 
+// 增加某个参与者
+func (meeting *Meeting) AddParticipator(participator string) bool {
+	if meeting.IsParticipators(participator) {	// 该参与者已经参加会议
+		return false
+	}
+	meeting.SetParticipators(append(meeting.GetParticipators(), participator))
+	return true
+}
+
+
 // 获得参与者的总人数
 func (meeting Meeting) GetParticipatorsNumber() int {
 	return len(meeting.Participators)

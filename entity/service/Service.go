@@ -134,10 +134,16 @@ func (service *Service) IsRegisteredUsers(userNames []string) bool {
 		return false
 	})) == len(userNames)	// 判断人数是否一致
 }
-// 获取冲突会议
-func (service *Service) GetTimeConflictMeetings(startDateString string, endDateString string) []model.Meeting {
 
+// 获取时间冲突会议
+func (service *Service) GetTimeConflictMeetings(startDateString string, endDateString string) []model.Meeting {
+	return service.AgendaStorage.QueryMeetings(func(meeting model.Meeting) bool {
+		return (meeting.GetStartDate() <= startDateString && meeting.GetEndDate() > startDateString) ||
+		(meeting.GetStartDate() < endDateString && meeting.GetEndDate() >= endDateString) ||
+		(meeting.GetStartDate() >= startDateString && meeting.GetEndDate() <= endDateString)
+	})
 }
+
 // 创建会议 - 检查title是否唯一、时间是否合法、参与者和发起者是否可参加会议椅
 func (service *Service) CreateMeeting(sponsor string, title string, 
 					startDateString string, endDateString string, participators []string) bool {
@@ -154,16 +160,13 @@ func (service *Service) CreateMeeting(sponsor string, title string,
 	}
 	
 	// 判断发起者和参与者是否都已注册
-	if !IsRegisteredUser(sponsor) || !IsRegisteredUsers(participators) {
+	if !service.IsRegisteredUser(sponsor) || !service.IsRegisteredUsers(participators) {
 		return false
 	}
 
 	// 获取同时段冲突会议
-	timeConflictMeetings := service.AgendaStorage.QueryMeetings(func(meeting model.Meeting) bool {
-		return (meeting.GetStartDate() <= startDateString && meeting.GetEndDate() > startDateString) ||
-		(meeting.GetStartDate() < endDateString && meeting.GetEndDate() >= endDateString) ||
-		(meeting.GetStartDate() >= startDateString && meeting.GetEndDate() <= endDateString)
-	})
+	timeConflictMeetings := service.AgendaStorage.GetTimeConflictMeetings(startDateString, endDateString)
+
 	// 判断发起者或参与者是否参与了冲突会议
 	for _, tMeeting := range timeConflictMeetings {
 		if tMeeting.IsParticipators(sponsor) || tMeeting.GetSponsor() == sponsor {	// 检查发起者
@@ -186,20 +189,54 @@ func (service *Service) AddParticipatorByTitle(sponsor string, title string, par
 	meetings := service.AgendaStorage.QueryMeetings(func(meeting model.Meeting) bool {
 		return meeting.GetTitle() == title && meeting.GetSponsor() == sponsor
 	})
-	if len(meetings) != 0 {	// 判断该会议是否存在
+	// 判断该会议是否存在 / 判断参与者是否已注册
+	if len(meetings) == 0 || !service.IsRegisteredUser(participator) {
 		return false
 	}
+
 	meeting := meetings[0]	// 获取该会议
+	// 获取同时段冲突会议
+	timeConflictMeetings := service.AgendaStorage.GetTimeConflictMeetings(
+								meeting.GetStartDate(), meeting.GetEndDate())
+	// 判断参与者是否参与了冲突会议
+	for _, tMeeting := range timeConflictMeetings {
+		if tMeeting.IsParticipators(participator) || tMeeting.GetSponsor() == participator {
+			return false
+		}
+	}
 
-
+	// 增加参与者
+	if !meeting.AddParticipator(participator) {
+		return false
+	}
+	
+	// 更新会议内容
+	return service.AgendaStorage.UpdateMeeting(func(pMeeting model.Meeting) bool {
+		return pMeeting.GetTitle() == meeting.GetTitle()
+	}, meeting)
 }
 
-// 发起者增加会议参与者 -- 判断参与者是否参与该会议，删除后会议人数是否为0
-func (service *Service) AddParticipatorByTitle(sponsor string, title string, participator string) bool {
-	return service.AgendaStorage.QueryMeetings(func(meeting model.Meeting) bool {
-		return meeting.GetTitle() == title && meeting.GetSponsor() == userName &&
-			meeting.IsParticipators(userName)
+// 发起者删除会议参与者 -- 判断删除该参与者是否成功，删除后会议人数是否为0
+func (service *Service) DeleteParticipatorByTitle(sponsor string, title string, participator string) bool {
+	meetings := service.AgendaStorage.QueryMeetings(func(meeting model.Meeting) bool {
+		return meeting.GetTitle() == title && meeting.GetSponsor() == sponsor
 	})
+	
+	// 判断该会议是否存在 / 删除该参与者是否成功
+	if len(meetings) == 0 || !meetings[0].DeleteParticipator(participator) {
+		return false
+	}
+
+	// 判断成功删除后会议参与者人数
+	if meetings[0].GetParticipatorsNumber() > 0 {	// 还有参与者，更新会议
+		return service.AgendaStorage.UpdateMeeting(func(meeting model.Meeting) bool {
+			return meeting.GetTitle() ==  meetings[0].GetTitle()
+		},  meetings[0])
+	} else {										// 没有参与者，删除会议
+		return service.AgendaStorage.DeleteMeetings(func(meeting model.Meeting) bool {
+			return meeting.GetTitle() ==  meetings[0].GetTitle()
+		})
+	}
 }
 
 

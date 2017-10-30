@@ -37,7 +37,9 @@ var ushowCmd = &cobra.Command{
 			os.Exit(1)
 		}
 		// get email and phone by username
-		ok, email, phone := Service.ListUserInformation(CurUsername)
+		ok, curUser := Service.GetCurrentUser(CurUsername)
+		email := curUser.GetEmail()
+		phone := curUser.GetPhone()
 		if ok == false {
 			fmt.Fprintln(os.Stderr, "Some mistakes happend in ListUserInformation")
 			os.Exit(1)	

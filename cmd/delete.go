@@ -51,7 +51,7 @@ var udeleteCmd = &cobra.Command{
 				os.Exit(1)
 			}
 			// delete user and meetings it participate
-			Service.DeleteUser(loginUsername)
+			Service.DeleteUser(loginUsername, password)
 			fmt.Println("Success : delete ", loginUsername)
 			Service.QuitAgenda("")
 			os.Exit(0)

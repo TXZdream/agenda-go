@@ -21,6 +21,7 @@ import (
 )
 
 var meetingName string
+var isDelete bool
 
 // meetingCmd represents the meeting command
 var meetingCmd = &cobra.Command{

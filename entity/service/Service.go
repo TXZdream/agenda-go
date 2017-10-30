@@ -68,7 +68,7 @@ func (service *Service) UserRegister(userName string, password string,
 		model.User{UserName: userName, Password: password, Email: email, Phone: phone})
 }
 
-// 删除用户，判断是否存在同名用户再进行删除 -- original
+// 删除用户，判断是否存在同名用户再进行删除
 func (service *Service) DeleteUser(userName string, password string) bool {
 	password = tools.MD5Encryption(password)
 	// 存在同名用户则进行删除操作
@@ -87,7 +87,7 @@ func (service *Service) DeleteUser(userName string, password string) bool {
 	return true
 }
 
-// 获取当前用户信息
+// 获取当前用户
 func (service *Service) GetCurrentUser(currentUserName string) (bool, model.User) {
 	users := service.AgendaStorage.QueryUsers(func(user model.User) bool {
 		return user.GetUserName() == currentUserName

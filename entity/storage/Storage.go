@@ -138,7 +138,7 @@ func (storage *Storage) ReadFromUserFile() (bool, StorageError) {
 	if err != nil {
 		return false, FailReadDataFile
 	}
-	if json.Unmarshal([]byte(usersJson), &storage.Users) != nil {
+	if len(usersJson) != 0 && json.Unmarshal([]byte(usersJson), &storage.Users) != nil {
 		return false, FailGetJsonData
 	}
 	return true, SucceedReadDateFile
@@ -150,7 +150,7 @@ func (storage *Storage) ReadFromMeetingFile() (bool, StorageError) {
 	if err != nil {
 		return false, FailReadDataFile
 	}
-	if json.Unmarshal([]byte(meetingsJson), &storage.Meetings) != nil {
+	if len(meetingsJson) != 0 && json.Unmarshal([]byte(meetingsJson), &storage.Meetings) != nil {
 		return false, FailGetJsonData
 	}
 	return true, SucceedReadDateFile

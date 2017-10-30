@@ -68,32 +68,12 @@ func (service *Service) UserRegister(userName string, password string,
 		model.User{UserName: userName, Password: password, Email: email, Phone: phone})
 }
 
-// // 删除用户，判断是否存在同名用户再进行删除 -- original
-// func (service *Service) DeleteUser(userName string, password string) bool {
-// 	password = tools.MD5Encryption(password)
-// 	// 存在同名用户则进行删除操作
-// 	if !service.AgendaStorage.DeleteUser(func(user model.User) bool {
-// 		return user.GetUserName() == userName && user.GetPassword() == password
-// 	}) {
-// 		return false
-// 	}
-// 	// 删除所有发起会议
-// 	service.DeleteAllMeetings(userName)
-// 	// 退出所有参与会议并删除参与人数为0的会议
-// 	meetings := service.ListAllParticipateMeetings(userName)
-// 	for _, meeting := range meetings {
-// 		service.QuitMeeting(userName, meeting.GetTitle())
-// 	}
-// 	return true
-// }
-
-// 删除用户，判断是否存在同名用户再进行删除
-func (service *Service) DeleteUser(userName string) bool {
-	// password = tools.MD5Encryption(password)
+// 删除用户，判断是否存在同名用户再进行删除 -- original
+func (service *Service) DeleteUser(userName string, password string) bool {
+	password = tools.MD5Encryption(password)
 	// 存在同名用户则进行删除操作
 	if !service.AgendaStorage.DeleteUser(func(user model.User) bool {
-		// return user.GetUserName() == userName && user.GetPassword() == password
-		return user.GetUserName() == userName		
+		return user.GetUserName() == userName && user.GetPassword() == password
 	}) {
 		return false
 	}
@@ -105,6 +85,17 @@ func (service *Service) DeleteUser(userName string) bool {
 		service.QuitMeeting(userName, meeting.GetTitle())
 	}
 	return true
+}
+
+// 获取当前用户信息
+func (service *Service) GetCurrentUser(currentUserName string) (bool, model.User) {
+	users := service.AgendaStorage.QueryUsers(func(user model.User) bool {
+		return user.GetUserName() == currentUserName
+	})
+	if len(users) != 1 {
+		return false, model.User{}
+	}
+	return true, users[0]
 }
 
 // 列出所有用户
@@ -337,13 +328,3 @@ func (service *Service) DeleteAllMeetings(sponsor string) bool {
 	})
 }
 
-// xiaxzh add ListUserInformation
-func (service *Service) ListUserInformation(username string) (bool, string, string) {
-	users := service.AgendaStorage.QueryUsers(func(user model.User) bool {
-		return user.GetUserName() == username
-	})
-	if len(users) == 0 {
-		return false, "", ""
-	}
-	return true, users[0].GetEmail(), users[0].GetPhone()
-}

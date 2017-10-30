@@ -15,12 +15,12 @@
 package cmd
 
 import (
-	"strconv"
-	"strings"
 	"os"
 	"fmt"
+	"strings"
 	service "github.com/txzdream/agenda-go/entity/service"
 	"github.com/spf13/cobra"
+	"strconv"
 )
 
 // manageCmd represents the manage command
@@ -42,14 +42,13 @@ var manageCmd = &cobra.Command{
 			fmt.Fprintln(os.Stderr, "error: Meeting theme is required.")
 			os.Exit(0)
 		}
-
+		
 		meetingList := Service.MeetingQueryByTitle(name, meetingName)
 		if len(meetingList) == 0 {
 			fmt.Println("No matching meeting with the given theme.")
 			os.Exit(1)
 		}
-
-		var participator []string
+				var participator []string
 		fmt.Println("Participators:")
 		for i, v := range meetingList[0].GetParticipators() {
 			participator = append(participator, v)

@@ -16,7 +16,8 @@ package cmd
 
 import (
 	"fmt"
-
+	"os"
+	service "github.com/txzdream/agenda-go/entity/service"
 	"github.com/spf13/cobra"
 )
 
@@ -26,7 +27,58 @@ var loginCmd = &cobra.Command{
 	Short: "user login",
 	Long: `Use this command to sign in to the system.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("login called")
+		// get Service
+		var Service service.Service
+		service.StartAgenda(&Service)
+		// get username
+		username, _ := cmd.Flags().GetString("username")
+		// check whether username or password empty
+		if username == "" {
+			fmt.Fprintln(os.Stderr, "error : Username is empty")
+			os.Exit(1)
+		}
+		// wait for password
+		var password string
+		fmt.Printf("Please enter the password: ")
+		fmt.Scanf("%s", &password)
+		// check whether user is registed
+		ok := Service.IsRegisteredUser(username)
+		if ok == false {
+			fmt.Fprintln(os.Stderr, "error : This user not exists")
+			os.Exit(1)
+		}
+		// check the password
+		var times int
+		for {
+			ok = Service.UserLogin(username, password)
+			if ok == false {
+				if (times < 2) {
+					times++
+					fmt.Print("Wrong password, Please try again: ")
+					fmt.Scanf("%s", &password)
+				} else {
+					fmt.Fprintln(os.Stderr, "error : Wrong password")
+					os.Exit(1)
+				}
+			} else {
+				break
+			}
+		}
+		// check whether has Login in
+		ok, CurUserName := Service.AutoUserLogin()
+		if CurUserName == username {
+			fmt.Fprintln(os.Stderr, "error : You have Logined in as ", CurUserName)
+			os.Exit(1)
+		}
+		// Succeed in Login as {username}
+		fmt.Println("success : You have Logined in as ", username)
+		fmt.Println("Welcome to use Agenda!")
+		ok = Service.QuitAgenda(username)
+		if ok == false {
+			fmt.Fprintln(os.Stderr, "error : Some mistakes happend in QuitAgenda")
+			os.Exit(1)
+		}
+		os.Exit(0)
 	},
 }
 
@@ -42,4 +94,5 @@ func init() {
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
 	// loginCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	loginCmd.Flags().StringP("username", "u", "", "Login username")
 }

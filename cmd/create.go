@@ -15,8 +15,12 @@
 package cmd
 
 import (
+	"strconv"
+	"strings"
+	"os"
 	"fmt"
 	"github.com/spf13/cobra"
+	service "github.com/txzdream/agenda-go/entity/service"
 )
 
 // createCmd represents the create command
@@ -25,7 +29,50 @@ var ucreateCmd = &cobra.Command{
 	Short: "create user account",
 	Long: `Use this command to create a new user account.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("create called")
+		// get service
+		var Service service.Service
+		service.StartAgenda(&Service)
+		// get createUser information
+		createUsername, _ := cmd.Flags().GetString("username")
+		createEmail, _ := cmd.Flags().GetString("email")
+		createPhone, _ := cmd.Flags().GetString("phone")
+		// check whether username, password, email or phone empty
+		if createUsername == "" || createEmail == "" ||
+		   createPhone == "" {
+			   fmt.Fprintln(os.Stderr, "error : Username, Email or Phone is(are) empty")
+				os.Exit(1)
+			}
+		// validator ? not necessary
+		// get the password
+		var createPassword string
+		var prePassword string
+		times := 1
+		for {
+			if times == 1 {
+				fmt.Print("Please enter the password you want to create: ")
+				fmt.Scanf("%s", &createPassword)
+			} else {
+				fmt.Print("Please enter the password again: ")
+				fmt.Scanf("%s", &createPassword)
+				if createPassword == prePassword {
+					break
+				} else {
+					fmt.Println("The two passwords entered are not consistent. \nPlease restart setting password.")
+				}
+			}
+			times *= -1
+			prePassword = createPassword			
+		}
+		// check whether User is registed		
+		ok := Service.UserRegister(createUsername, createPassword, createEmail, createPhone)
+		if ok == false {
+			fmt.Println(createUsername," has been registered")
+			os.Exit(1)
+		}
+		fmt.Println("Sucess : Register ", createUsername)
+		fmt.Println("You have logged in automatically.")
+		Service.QuitAgenda(createUsername)
+		os.Exit(0)
 	},
 }
 
@@ -34,7 +81,54 @@ var mcreateCmd = &cobra.Command{
 	Short: "create meeting",
 	Long: `Use this command to create a new meeting.`,
 	Run: func(cmd *cobra.Command, args []string) {
+		var Service service.Service
+		service.StartAgenda(&Service)
+
+		ok, name := Service.AutoUserLogin()
+		if !ok {
+			fmt.Fprintln(os.Stderr, "error: No current logged user.")
+			os.Exit(0)
+		}
+
+		if meetingName == "" {
+			fmt.Fprintln(os.Stderr, "error: Meeting name is required.")
+			os.Exit(0)
+		}
+		var begin, end string
+		var participator []string
+
+		// show all users
+		userList := Service.ListAllUsers()
+		for i, v := range userList {
+			fmt.Printf("%d. %s\n", i + 1, v.GetUserName())
+		}
+
+		fmt.Printf("Please choose the number of them to join your meeting(seprate with space): ")
+		var chosenUsers, tmp string
+		fmt.Scanln(&chosenUsers)
+		fmt.Scanf("%d", &tmp)
+		chosenList := strings.Split(chosenUsers, " ")
+		fmt.Println(chosenUsers)
+		fmt.Println(chosenList)
 		
+		for _, v := range chosenList {
+			i, err := strconv.Atoi(v)
+			if err != nil {
+				fmt.Fprintln(os.Stderr, "error: Invalid input.")
+				os.Exit(0)
+			}
+			participator = append(participator, userList[i - 1].GetUserName())
+		}
+
+		// scan start time and end time
+		fmt.Printf("Please input start time(format: YYYY-MM-DD/HH:MM): ")
+		fmt.Scanf("%s", &begin)
+		fmt.Scanf("%d", &tmp)
+		fmt.Printf("Please input end time(format: YYYY-MM-DD/HH:MM): ")
+		fmt.Scanf("%s", &end)
+		fmt.Scanf("%d", &tmp)
+		
+	    Service.CreateMeeting(name, meetingName, begin, end, participator)
 	},
 }
 
@@ -51,4 +145,10 @@ func init() {
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
 	// createCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	mcreateCmd.Flags().StringVarP(&meetingName, "name", "", "", "Name for meeting you want to create.")
+
+	// xiaxzh's part:
+	ucreateCmd.Flags().StringP("username", "u", "", "Create Username")
+	ucreateCmd.Flags().StringP("email", "e", "", "Create Email")
+	ucreateCmd.Flags().StringP("phone", "p", "", "Create Phone")
 }

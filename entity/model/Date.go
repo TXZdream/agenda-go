@@ -55,13 +55,14 @@ func StringDateTimeToIntArray(dateTimeString string, dateTimeArray *[5]int) bool
 	return true
 }
 
-// 根据年月日时分设置Date
-func SetDateByYMDHM(year, month, day, hour, minute int) time.Time {
+// 根据年月日时分设置time.Date
+func SetDateByYMDHM(dateTimeArray [5]int) time.Time {
 	loc, err := time.LoadLocation("")
 	if err != nil {
 		panic(err)
 	}
-	return time.Date(year, (time.Month)(month), day, hour, minute, 0, 0, loc)
+	return time.Date(dateTimeArray[0], (time.Month)(dateTimeArray[1]), dateTimeArray[2], 
+			dateTimeArray[3], dateTimeArray[4], 0, 0, loc)
 }
 // ------------ 判断日期是否合法 ------------
 // 判断是否是闰年
@@ -94,9 +95,10 @@ func IsValidMinute(minute int) bool {
 	return minute >= 0 && minute < 60
 }
 // 判断DateTime是否合法
-func IsValidDateTime(year, month, day, hour, minute int) bool {
-	return IsValidYear(year) && IsValidMonth(month) && IsValidDayByYM(year, month, day) && 
-			IsValidHour(hour) && IsValidMinute(minute)
+func IsValidDateTime(dateTimeArray [5]int) bool {
+	return IsValidYear(dateTimeArray[0]) && IsValidMonth(dateTimeArray[1]) && 
+		   IsValidDayByYM(dateTimeArray[0], dateTimeArray[1], dateTimeArray[2]) && 
+		   IsValidHour(dateTimeArray[3]) && IsValidMinute(dateTimeArray[4])
 }
 // ---------------------------------------
 

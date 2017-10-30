@@ -16,7 +16,8 @@ package cmd
 
 import (
 	"fmt"
-
+	"os"
+	service "github.com/txzdream/agenda-go/entity/service"
 	"github.com/spf13/cobra"
 )
 
@@ -26,7 +27,38 @@ var udeleteCmd = &cobra.Command{
 	Short: "Delete user account",
 	Long: `Use this command to delete your account, meetings included.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("delete called")
+		var Service service.Service
+		service.StartAgenda(&Service)
+
+		// check username empty
+		username, _ := cmd.Flags().GetString("username")
+		if username == "" {
+			fmt.Fprintln(os.Stderr, "error : Username is empty")
+			os.Exit(1)
+		}
+		// check whether User Login
+		_, loginUsername := Service.AutoUserLogin()
+		if username == loginUsername {
+			// hints to ensure and enter password to delete User
+			var password string
+			fmt.Println("Ensure to delete User : ", username)
+			fmt.Print("Plase enter password: ")
+			fmt.Scanf("%s", &password)
+			// chech the password
+			ok := Service.UserLogin(username, password)
+			if ok == false {
+				fmt.Fprintln(os.Stderr, "error : Wrong password")
+				os.Exit(1)
+			}
+			// delete user and meetings it participate
+			Service.DeleteUser(loginUsername, password)
+			fmt.Println("Success : delete ", loginUsername)
+			Service.QuitAgenda("")
+			os.Exit(0)
+		} else {
+			fmt.Fprintln(os.Stderr, "Please Login in First")
+			os.Exit(1)
+		}
 	},
 }
 
@@ -36,6 +68,25 @@ var mdeleteCmd = &cobra.Command{
 	Long: `Use this command to delete specific meeting.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("delete called")
+		var Service service.Service
+		service.StartAgenda(&Service)
+
+		ok, name := Service.AutoUserLogin()
+		if !ok {
+			fmt.Fprintln(os.Stderr, "error: No current logged user.")
+			os.Exit(0)
+		}
+
+		if meetingName == "" {
+			fmt.Fprintln(os.Stderr, "error: Meeting name is required.")
+			os.Exit(0)
+		}
+		ok = Service.DeleteMeeting(name, meetingName)
+		if ok {
+			fmt.Printf("Delete %s finished.\n", meetingName)
+		} else {
+			fmt.Printf("Can not delete the meeting called %s.\n", meetingName)
+		}
 	},
 }
 
@@ -52,4 +103,6 @@ func init() {
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
 	// deleteCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	mdeleteCmd.Flags().StringVarP(&meetingName, "name", "", "", "meeting name to be deleted")
+	udeleteCmd.Flags().StringP("username", "u", "", "Delete user")
 }

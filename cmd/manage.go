@@ -15,9 +15,12 @@
 package cmd
 
 import (
+	"os"
 	"fmt"
-
+	"strings"
+	service "github.com/txzdream/agenda-go/entity/service"
 	"github.com/spf13/cobra"
+	"strconv"
 )
 
 // manageCmd represents the manage command
@@ -26,7 +29,81 @@ var manageCmd = &cobra.Command{
 	Short: "Manage meeting",
 	Long: `Create meeting.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("manage called")
+		var Service service.Service
+		service.StartAgenda(&Service)
+
+		ok, name := Service.AutoUserLogin()
+		if !ok {
+			fmt.Fprintln(os.Stderr, "error: No current logged user.")
+			os.Exit(0)
+		}
+		
+		if meetingName == "" {
+			fmt.Fprintln(os.Stderr, "error: Meeting theme is required.")
+			os.Exit(0)
+		}
+		
+		meetingList := Service.MeetingQueryByTitle(name, meetingName)
+		if len(meetingList) == 0 {
+			fmt.Println("No matching meeting with the given theme.")
+			os.Exit(1)
+		}
+
+		// delete users
+		if isDelete {
+			var participator []string
+			fmt.Println("Participators:")
+			for i, v := range meetingList[0].GetParticipators() {
+				participator = append(participator, v)
+				fmt.Printf("%d. %s\n", i, v)
+			}
+			fmt.Println("Please input the number you want to remove: ")
+			var inputNums string
+			var tmp int
+			fmt.Scanln(&inputNums)
+			fmt.Scanf("%d", &tmp)
+			chosenList := strings.Split(inputNums, " ")
+			var toBeRemovedParticipators []string
+			for _, v := range chosenList {
+				num, err := strconv.Atoi(v)
+				if err != nil {
+					fmt.Fprintln(os.Stderr, "error: Invalid input")
+					os.Exit(1)
+				}
+				toBeRemovedParticipators = append(toBeRemovedParticipators, participator[num])
+			}
+			for _, v := range toBeRemovedParticipators {
+				ok := Service.DeleteParticipatorByTitle(name, meetingName, v)
+				if ok {
+					fmt.Printf("%s was removed.\n", v)
+				} else {
+					fmt.Printf("%s can not be removed.\n", v)
+				}
+			}
+		} else {
+			// add users
+			fmt.Println("You can choose some of them to add to your meeting:")
+			userList := Service.ListAllUsers()
+			for i, v := range userList {
+				fmt.Printf("%d. %s\n", i + 1, v.GetUserName())
+			}
+			fmt.Println("Please input the number of users you want to add(separate with blank): ")
+			var userNums string
+			fmt.Scanln(&userNums)
+			userNumList := strings.Split(userNums, " ")
+			for _, v := range userNumList {
+				i, ok := strconv.Atoi(v)
+				if ok != nil || i >= len(userList) {
+					fmt.Fprintln(os.Stderr, "error: Invalid input.")
+					os.Exit(0)
+				}
+				if Service.AddParticipatorByTitle(name, meetingName, userList[i - 1].GetUserName()) {
+					fmt.Printf("%s was added.\n", userList[i - 1].GetUserName())
+				} else {
+					fmt.Printf("%s can not be added.\n", userList[i - 1].GetUserName())
+				}
+			}
+		}
 	},
 }
 
@@ -42,4 +119,6 @@ func init() {
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
 	// manageCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	manageCmd.Flags().StringVarP(&meetingName, "name", "", "", "the name of meeting to be managed")
+	manageCmd.Flags().BoolVarP(&isDelete, "", "d", false, "Delete a meeting")
 }

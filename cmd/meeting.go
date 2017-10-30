@@ -20,6 +20,9 @@ import (
 	"github.com/spf13/cobra"
 )
 
+var meetingName string
+var isDelete bool
+
 // meetingCmd represents the meeting command
 var meetingCmd = &cobra.Command{
 	Use:   "meeting",

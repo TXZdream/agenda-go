@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"os"
-	"strings"
 	"sync"
 	"github.com/txzdream/agenda-go/entity/model"
 )
@@ -139,14 +138,8 @@ func (storage *Storage) ReadFromUserFile() (bool, StorageError) {
 	if err != nil {
 		return false, FailReadDataFile
 	}
-	// 以换行符分隔再逐个解析
-	usersList := strings.Split(string(usersJson), "\n")
-	for i := 0; i < len(usersList); i++ {
-		user := model.User{}
-		if json.Unmarshal([]byte(usersList[i]), &user) != nil {
-			return false, FailGetJsonData
-		}
-		storage.Users = append(storage.Users, user)
+	if len(usersJson) != 0 && json.Unmarshal([]byte(usersJson), &storage.Users) != nil {
+		return false, FailGetJsonData
 	}
 	return true, SucceedReadDateFile
 }
@@ -157,14 +150,8 @@ func (storage *Storage) ReadFromMeetingFile() (bool, StorageError) {
 	if err != nil {
 		return false, FailReadDataFile
 	}
-	// 以换行符分隔再逐个解析
-	meetingsList := strings.Split(string(meetingsJson), "\n")
-	for i := 0; i < len(meetingsList); i++ {
-		meeting := model.Meeting{}
-		if json.Unmarshal([]byte(meetingsList[i]), &meeting) != nil {
-			return false, FailGetJsonData
-		}
-		storage.Meetings = append(storage.Meetings, meeting)
+	if len(meetingsJson) != 0 && json.Unmarshal([]byte(meetingsJson), &storage.Meetings) != nil {
+		return false, FailGetJsonData
 	}
 	return true, SucceedReadDateFile
 }
@@ -204,28 +191,20 @@ func (storage *Storage) WriteToCurrentUserFile(CurrentUserName string) bool {
 
 // 写入User.json
 func (storage *Storage) WriteUserFile() bool {
-	var userStringList []string
-	for i := 0; i < len(storage.Users); i++ {
-		userJson, err := json.Marshal(storage.Users[i])
-		if err != nil {
-			return false
-		}
-		userStringList = append(userStringList, string(userJson))
+	userJson, err := json.Marshal(storage.Users)
+	if err != nil {
+		return false
 	}
-	return WriteToFile(model.UserDataPath, []byte(strings.Join(userStringList, "\n")))
+	return WriteToFile(model.UserDataPath, userJson)
 }
 
 // 写入Meeting.json
 func (storage *Storage) WriteMeetingFile() bool {
-	var meetingStringList []string
-	for i := 0; i < len(storage.Meetings); i++ {
-		meetingJson, err := json.Marshal(storage.Meetings[i])
-		if err != nil {
-			return false
-		}
-		meetingStringList = append(meetingStringList, string(meetingJson))
+	meetingJson, err := json.Marshal(storage.Meetings)
+	if err != nil {
+		return false
 	}
-	return WriteToFile(model.MeetingDataPath, []byte(strings.Join(meetingStringList, "\n")))
+	return WriteToFile(model.MeetingDataPath, meetingJson)
 }
 
 

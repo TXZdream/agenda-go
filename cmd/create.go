@@ -107,7 +107,7 @@ var mcreateCmd = &cobra.Command{
 		var chosenUsers, tmp string
 		fmt.Scanln(&chosenUsers)
 		fmt.Scanf("%d", &tmp)
-		chosenList := strings.Split(" ", chosenUsers)
+		chosenList := strings.Split(chosenUsers, " ")
 		fmt.Println(chosenUsers)
 		fmt.Println(chosenList)
 		
@@ -124,6 +124,7 @@ var mcreateCmd = &cobra.Command{
 		fmt.Printf("Please input start time(format: YYYY-MM-DD/HH:MM): ")
 		fmt.Scanf("%s", &begin)
 		fmt.Scanf("%d", &tmp)
+		fmt.Printf("Please input end time(format: YYYY-MM-DD/HH:MM): ")
 		fmt.Scanf("%s", &end)
 		fmt.Scanf("%d", &tmp)
 		

@@ -22,6 +22,7 @@ func StartAgenda(service *Service) (bool, storage.StorageError) {
 // 退出Agenda：把保存当前登陆的用户名到文件中
 // 若用户退出登陆，则把空字符串写进文件
 func (service *Service) QuitAgenda(currentUserName string) bool {
+	service.AgendaStorage = nil
 	return service.AgendaStorage.WriteToCurrentUserFile(currentUserName)
 }
 

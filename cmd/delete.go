@@ -18,6 +18,7 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	"bufio"
 	service "github.com/txzdream/agenda-go/entity/service"
 	"github.com/spf13/cobra"
 	log "github.com/txzdream/agenda-go/entity/tools"
@@ -49,7 +50,9 @@ var udeleteCmd = &cobra.Command{
 			var password string
 			fmt.Println("Ensure to delete User : ", username)
 			fmt.Print("Plase enter password: ")
-			fmt.Scanf("%s", &password)
+			reader := bufio.NewReader(os.Stdin)
+			data, _, _ := reader.ReadLine()
+			password = string(data)
 			// chech the password
 			ok := Service.UserLogin(username, password)
 			if ok == false {

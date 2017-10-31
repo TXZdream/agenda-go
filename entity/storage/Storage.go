@@ -5,7 +5,6 @@ import (
 	"io/ioutil"
 	"os"
 	"sync"
-	"fmt"
 	"github.com/txzdream/agenda-go/entity/model"
 )
 
@@ -187,7 +186,6 @@ func WriteToFile(fileName string, content []byte) bool {
 
 // 写入当前用户信息
 func (storage *Storage) WriteToCurrentUserFile(CurrentUserName string) bool {
-	fmt.Println("Tip : ", CurrentUserName, " ", model.CurUserPath)
 	return WriteToFile(model.CurUserPath, []byte(CurrentUserName))
 }
 

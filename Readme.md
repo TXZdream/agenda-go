@@ -3,7 +3,8 @@
 
 ## Team member
 - 唐玄昭 xuanzhaotang@gmail.com
-- 黄楠绚  threequarters@qq.com
+- 黄楠绚 threequarters@qq.com
+- 夏显茁 xiaxzh2015@163.com
 
 ## Usage
 ```

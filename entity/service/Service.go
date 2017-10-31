@@ -1,7 +1,6 @@
 package entity
 
 import (
-	"fmt"
 	model "github.com/txzdream/agenda-go/entity/model"
 	storage "github.com/txzdream/agenda-go/entity/storage"
 	tools "github.com/txzdream/agenda-go/entity/tools"
@@ -31,7 +30,6 @@ func (service *Service) QuitAgenda(currentUserName string) bool {
 func (service *Service) AutoUserLogin() (bool, string) {
 	result, currentUserName := service.AgendaStorage.ReadFromCurrentUserFile()
 	if !result {
-		fmt.Println(result, currentUserName)
 		return false, ""
 	}
 	// 根据获得的用户名判断是否存在该用户名

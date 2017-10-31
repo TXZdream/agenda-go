@@ -1,7 +1,6 @@
 package entity
 
 import (
-	"fmt"
 	model "github.com/txzdream/agenda-go/entity/model"
 	storage "github.com/txzdream/agenda-go/entity/storage"
 	tools "github.com/txzdream/agenda-go/entity/tools"
@@ -31,7 +30,6 @@ func (service *Service) QuitAgenda(currentUserName string) bool {
 func (service *Service) AutoUserLogin() (bool, string) {
 	result, currentUserName := service.AgendaStorage.ReadFromCurrentUserFile()
 	if !result {
-		fmt.Println(result, currentUserName)
 		return false, ""
 	}
 	// 根据获得的用户名判断是否存在该用户名
@@ -173,6 +171,13 @@ func (service *Service) CreateMeeting(sponsor string, title string,
 		return false
 	}
 
+	// 检查参与者是否与发起者是同一人
+	for _, participator := range participators {
+		if sponsor == participator {
+			return false
+		}
+	}
+
 	// 获取同时段冲突会议
 	timeConflictMeetings := service.GetTimeConflictMeetings(startDateString, endDateString)
 
@@ -198,8 +203,8 @@ func (service *Service) AddParticipatorByTitle(sponsor string, title string, par
 	meetings := service.AgendaStorage.QueryMeetings(func(meeting model.Meeting) bool {
 		return meeting.GetTitle() == title && meeting.GetSponsor() == sponsor
 	})
-	// 判断该会议是否存在 / 判断参与者是否已注册
-	if len(meetings) == 0 || !service.IsRegisteredUser(participator) {
+	// 判断该会议是否存在 / 判断参与者是否已注册 / 参与者就是发起者本人
+	if len(meetings) == 0 || !service.IsRegisteredUser(participator) || participator == sponsor {
 		return false
 	}
 
@@ -265,10 +270,10 @@ func (service *Service) MeetingQueryByUserAndTime(
 	}
 	// 获取用户发起/参与且时间冲突的会议
 	return service.AgendaStorage.QueryMeetings(func(meeting model.Meeting) bool {
-		return meeting.GetSponsor() == userName && meeting.IsParticipators(userName) &&
-		(meeting.GetStartDate() <= startDateString && meeting.GetEndDate() >= startDateString) ||
+		return (meeting.GetSponsor() == userName || meeting.IsParticipators(userName)) &&
+		((meeting.GetStartDate() <= startDateString && meeting.GetEndDate() >= startDateString) ||
 		(meeting.GetStartDate() <= endDateString && meeting.GetEndDate() >= endDateString) ||
-		(meeting.GetStartDate() >= startDateString && meeting.GetEndDate() <= endDateString)
+		(meeting.GetStartDate() >= startDateString && meeting.GetEndDate() <= endDateString))
 	})
 }
 

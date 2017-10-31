@@ -154,10 +154,10 @@ var mcreateCmd = &cobra.Command{
 		ok = Service.CreateMeeting(name, meetingName, begin, end, participator)
 		if ok {
 			fmt.Printf("Create meeting %s finished.\n", meetingName)
-			log.LogInfoOrErrorIntoFile(name, true, fmt.Sprintln("Finish creating meeting %s.", meetingName))
+			log.LogInfoOrErrorIntoFile(name, true, fmt.Sprintf("Finish creating meeting %s\n.", meetingName))
 		} else {
 			fmt.Printf("Can not create meeting %s.\n", meetingName)
-			log.LogInfoOrErrorIntoFile(name, false, fmt.Sprintln("Fail to create meeting %s.", meetingName))
+			log.LogInfoOrErrorIntoFile(name, false, fmt.Sprintf("Fail to create meeting %s.\n", meetingName))
 		}
 	},
 }

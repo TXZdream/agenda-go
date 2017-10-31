@@ -283,6 +283,7 @@ func (storage *Storage) QueryMeetings(filter func(meeting model.Meeting) bool) [
 			meetings = append(meetings, tMeeting)
 		}
 	}
+	
 	return meetings
 }
 
@@ -306,7 +307,7 @@ func (storage *Storage) DeleteMeetings(filter func(meeting model.Meeting) bool) 
 			isDeleted = true
 		}
 	}
-	return isDeleted && storage.WriteUserFile()
+	return isDeleted && storage.WriteMeetingFile()
 }
 
 // ------------------------------------------------------------------

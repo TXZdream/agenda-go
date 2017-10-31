@@ -18,6 +18,7 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	"bufio"
 	service "github.com/txzdream/agenda-go/entity/service"
 	"github.com/spf13/cobra"
 )
@@ -46,7 +47,9 @@ var loginCmd = &cobra.Command{
 		// wait for password
 		var password string
 		fmt.Printf("Please enter the password: ")
-		fmt.Scanf("%s", &password)
+		reader := bufio.NewReader(os.Stdin)
+		data, _, _ := reader.ReadLine()
+		password = string(data)
 		// check whether user is registed
 		ok = Service.IsRegisteredUser(username)
 		if ok == false {

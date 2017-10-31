@@ -53,13 +53,16 @@ var ucreateCmd = &cobra.Command{
 		var createPassword string
 		var prePassword string
 		times := 1
+		reader := bufio.NewReader(os.Stdin)
 		for {
 			if times == 1 {
 				fmt.Print("Please enter the password you want to create: ")
-				fmt.Scanf("%s", &createPassword)
+				data, _, _ := reader.ReadLine()
+				createPassword = string(data)
 			} else {
 				fmt.Print("Please enter the password again: ")
-				fmt.Scanf("%s", &createPassword)
+				data, _, _ := reader.ReadLine()
+				createPassword = string(data)
 				if createPassword == prePassword {
 					break
 				} else {
@@ -80,8 +83,7 @@ var ucreateCmd = &cobra.Command{
 			os.Exit(1)
 		}
 		fmt.Println("Sucess : Register ", createUsername)
-		fmt.Println("You have logged in automatically.")
-		Service.QuitAgenda(createUsername)
+		Service.QuitAgenda("")
 		os.Exit(0)
 	},
 }
@@ -114,7 +116,11 @@ var mcreateCmd = &cobra.Command{
 
 		// show all users
 		userList := Service.ListAllUsers()
+		var self int
 		for i, v := range userList {
+			if v.GetUserName() == name {
+				self = i
+			}
 			fmt.Printf("%d. %s\n", i + 1, v.GetUserName())
 		}
 
@@ -139,17 +145,20 @@ var mcreateCmd = &cobra.Command{
 				fmt.Fprintln(os.Stderr, "error: Invalid input.")
 				os.Exit(0)
 			}
+			if i == self + 1 {
+				fmt.Println("error: You can not add yourself to the meeting.")
+				os.Exit(0)
+			}
 			participator = append(participator, userList[i - 1].GetUserName())
 		}
 
 		// scan start time and end time
-		var tmp int
 		fmt.Printf("Please input start time(format: YYYY-MM-DD/HH:MM): ")
-		fmt.Scanf("%s", &begin)
-		fmt.Scanf("%d", &tmp)
+		data, _, _ = reader.ReadLine()
+		begin = string(data)
 		fmt.Printf("Please input end time(format: YYYY-MM-DD/HH:MM): ")
-		fmt.Scanf("%s", &end)
-		fmt.Scanf("%d", &tmp)
+		data, _, _ = reader.ReadLine()
+		end = string(data)
 		
 		ok = Service.CreateMeeting(name, meetingName, begin, end, participator)
 		if ok {

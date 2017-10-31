@@ -31,7 +31,7 @@
 ### 查询会议
 `agenda meeting show`
 查看会议信息，并相关具体信息
-`--name` 会议名称
+`--start -s` 会议开始时间 `--end -e` 会议结束时间
 ### 取消会议
 `agenda meeting delete`
 取消会议，输入会议名称后显示确认，确认完成后，将会删除该会议

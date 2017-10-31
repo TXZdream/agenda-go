@@ -18,6 +18,7 @@ import (
 	"os"
 	"fmt"
 	"strings"
+	"bufio"
 	service "github.com/txzdream/agenda-go/entity/service"
 	"github.com/spf13/cobra"
 	"strconv"
@@ -55,13 +56,13 @@ var manageCmd = &cobra.Command{
 			fmt.Println("Participators:")
 			for i, v := range meetingList[0].GetParticipators() {
 				participator = append(participator, v)
-				fmt.Printf("%d. %s\n", i, v)
+				fmt.Printf("%d. %s\n", i + 1, v)
 			}
-			fmt.Println("Please input the number you want to remove: ")
+			fmt.Print("Please input the number you want to remove: ")
 			var inputNums string
-			var tmp int
-			fmt.Scanln(&inputNums)
-			fmt.Scanf("%d", &tmp)
+			reader := bufio.NewReader(os.Stdin)
+			data, _, _ := reader.ReadLine()
+			inputNums = string(data)
 			chosenList := strings.Split(inputNums, " ")
 			var toBeRemovedParticipators []string
 			for _, v := range chosenList {
@@ -70,7 +71,7 @@ var manageCmd = &cobra.Command{
 					fmt.Fprintln(os.Stderr, "error: Invalid input")
 					os.Exit(1)
 				}
-				toBeRemovedParticipators = append(toBeRemovedParticipators, participator[num])
+				toBeRemovedParticipators = append(toBeRemovedParticipators, participator[num - 1])
 			}
 			for _, v := range toBeRemovedParticipators {
 				ok := Service.DeleteParticipatorByTitle(name, meetingName, v)
@@ -87,9 +88,11 @@ var manageCmd = &cobra.Command{
 			for i, v := range userList {
 				fmt.Printf("%d. %s\n", i + 1, v.GetUserName())
 			}
-			fmt.Println("Please input the number of users you want to add(separate with blank): ")
+			fmt.Print("Please input the number of users you want to add(separate with blank): ")
 			var userNums string
-			fmt.Scanln(&userNums)
+			reader := bufio.NewReader(os.Stdin)
+			data, _, _ := reader.ReadLine()
+			userNums = string(data)
 			userNumList := strings.Split(userNums, " ")
 			for _, v := range userNumList {
 				i, ok := strconv.Atoi(v)

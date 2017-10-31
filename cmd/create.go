@@ -19,6 +19,7 @@ import (
 	"strings"
 	"os"
 	"fmt"
+	"bufio"
 	"github.com/spf13/cobra"
 	service "github.com/txzdream/agenda-go/entity/service"
 )
@@ -104,12 +105,11 @@ var mcreateCmd = &cobra.Command{
 		}
 
 		fmt.Printf("Please choose the number of them to join your meeting(seprate with space): ")
-		var chosenUsers, tmp string
-		fmt.Scanln(&chosenUsers)
-		fmt.Scanf("%d", &tmp)
+		var chosenUsers string
+		reader := bufio.NewReader(os.Stdin)
+		data, _, _ := reader.ReadLine()
+		chosenUsers = string(data)
 		chosenList := strings.Split(chosenUsers, " ")
-		fmt.Println(chosenUsers)
-		fmt.Println(chosenList)
 		
 		for _, v := range chosenList {
 			i, err := strconv.Atoi(v)
@@ -121,6 +121,7 @@ var mcreateCmd = &cobra.Command{
 		}
 
 		// scan start time and end time
+		var tmp int
 		fmt.Printf("Please input start time(format: YYYY-MM-DD/HH:MM): ")
 		fmt.Scanf("%s", &begin)
 		fmt.Scanf("%d", &tmp)
@@ -128,7 +129,12 @@ var mcreateCmd = &cobra.Command{
 		fmt.Scanf("%s", &end)
 		fmt.Scanf("%d", &tmp)
 		
-	    Service.CreateMeeting(name, meetingName, begin, end, participator)
+		ok = Service.CreateMeeting(name, meetingName, begin, end, participator)
+		if ok {
+			fmt.Printf("Create meeting %s finished.", meetingName)
+		} else {
+			fmt.Printf("Can not create meeting %s.\n", meetingName)
+		}
 	},
 }
 

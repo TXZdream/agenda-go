@@ -38,6 +38,7 @@ var clearCmd = &cobra.Command{
 
 		fmt.Print("Are you sure you want to clear all of your meetings? (y/n) ")
 		var confirm string
+		fmt.Scanf("%s", &confirm)
 		if confirm == "y" {
 			ok = Service.DeleteAllMeetings(name)
 			if ok {

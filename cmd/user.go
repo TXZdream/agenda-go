@@ -15,8 +15,6 @@
 package cmd
 
 import (
-	"fmt"
-
 	"github.com/spf13/cobra"
 )
 
@@ -27,7 +25,7 @@ var userCmd = &cobra.Command{
 	Long: `You can use this command to manage or create your account. 
 Of course you can sign in with it.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("Not a correct commands")
+		cmd.Help()
 	},
 }
 

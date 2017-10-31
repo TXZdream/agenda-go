@@ -43,9 +43,9 @@ var leaveCmd = &cobra.Command{
 		
 		ok = Service.QuitMeeting(name, meetingName)
 		if ok {
-			fmt.Println("Finish leaving meeting.")
+			fmt.Printf("Finish leaving meeting %s.\n", meetingName)
 		} else {
-			fmt.Println("Can not leave this meeting.")
+			fmt.Printf("Can not leave this meeting %s.\n", meetingName)
 		}
 	},
 }

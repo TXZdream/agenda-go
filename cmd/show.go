@@ -70,11 +70,11 @@ var mshowCmd = &cobra.Command{
 			os.Exit(0)
 		}
 		
-		if meetingName == "" {
-			fmt.Fprintln(os.Stderr, "error: Meeting theme is required.")
+		if startTime == "" || endTime == "" {
+			fmt.Fprintln(os.Stderr, "error: Start time and end time is required.")
 			os.Exit(0)
 		}
-		meetingList := Service.MeetingQueryByTitle(name, meetingName)
+		meetingList := Service.MeetingQueryByUserAndTime(name, startTime, endTime)
 
 		// print all meetings with the given name
 		if len(meetingList) == 0 {
@@ -83,12 +83,14 @@ var mshowCmd = &cobra.Command{
 			fmt.Println("--·--·--·--·--·--·--·--·--·--·--")
 		} else {
 			fmt.Println("--·--·--·--·--·--·--·--·--·--·--")
-			fmt.Printf("Theme: %s\n", meetingList[1].GetTitle())
-			fmt.Printf("Sponsor: %s\n", meetingList[0].GetSponsor())
-			fmt.Printf("Start time: %s\n", meetingList[0].GetStartDate())
-			fmt.Printf("End time: %s\n", meetingList[0].GetEndDate())
-			fmt.Printf("Participator: %s\n", meetingList[0].GetParticipators())
-			fmt.Println("--·--·--·--·--·--·--·--·--·--·--")
+			for _, v := range meetingList {
+				fmt.Printf("Theme: %s\n", v.GetTitle())
+				fmt.Printf("Sponsor: %s\n", v.GetSponsor())
+				fmt.Printf("Start time: %s\n", v.GetStartDate())
+				fmt.Printf("End time: %s\n", v.GetEndDate())
+				fmt.Printf("Participator: %s\n", v.GetParticipators())
+				fmt.Println("--·--·--·--·--·--·--·--·--·--·--")
+			}
 		}
 	},
 }
@@ -106,7 +108,6 @@ func init() {
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
 	// showCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
-	mshowCmd.Flags().StringVarP(&meetingName, "name", "", "", "the name of meeting to be managed")
-
-	// xiaxzh's part:
+	mshowCmd.Flags().StringVarP(&startTime, "start", "s", "", "Start time of meeting")
+	mshowCmd.Flags().StringVarP(&endTime, "end", "e", "", "End time of meeting")
 }

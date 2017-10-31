@@ -17,6 +17,7 @@ package cmd
 import (
 	"fmt"
 	"os"
+	"strings"
 	service "github.com/txzdream/agenda-go/entity/service"	
 	"github.com/spf13/cobra"
 )
@@ -30,6 +31,11 @@ var logoutCmd = &cobra.Command{
 		// get service
 		var Service service.Service
 		service.StartAgenda(&Service)
+		// check whether other user logged in
+		ok, name := Service.AutoUserLogin()
+		if ok == true {
+			fmt.Println(strings.Join([]string{name,"@:"}, ""))
+		}
 		// check Whether CurUser exits
 		ok, CurUsername := Service.AutoUserLogin()
 		if ok == false {

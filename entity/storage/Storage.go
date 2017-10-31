@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"os"
 	"sync"
+	"fmt"
 	"github.com/txzdream/agenda-go/entity/model"
 )
 
@@ -178,7 +179,7 @@ func (storage *Storage) ReadFromDataFile() (bool, StorageError) {
 
 // 根据文件名把数据写入文件
 func WriteToFile(fileName string, content []byte) bool {
-	if ioutil.WriteFile(fileName, content, 0644) != nil {
+	if ioutil.WriteFile(fileName, content, 0777) != nil {
 		return false
 	}
 	return true
@@ -186,6 +187,7 @@ func WriteToFile(fileName string, content []byte) bool {
 
 // 写入当前用户信息
 func (storage *Storage) WriteToCurrentUserFile(CurrentUserName string) bool {
+	fmt.Println("Tip : ", CurrentUserName, " ", model.CurUserPath)
 	return WriteToFile(model.CurUserPath, []byte(CurrentUserName))
 }
 

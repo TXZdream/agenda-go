@@ -17,6 +17,7 @@ package cmd
 import (
 	"fmt"
 	"os"
+	"strings"
 	service "github.com/txzdream/agenda-go/entity/service"
 	"github.com/spf13/cobra"
 )
@@ -24,12 +25,17 @@ import (
 // loginCmd represents the login command
 var loginCmd = &cobra.Command{
 	Use:   "login",
-	Short: "user login",
+	Short: "User login",
 	Long: `Use this command to sign in to the system.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		// get Service
 		var Service service.Service
 		service.StartAgenda(&Service)
+		// check whether other user logged in
+		ok, name := Service.AutoUserLogin()
+		if ok == true {
+			fmt.Println(strings.Join([]string{name,"@:"}, ""))
+		}
 		// get username
 		username, _ := cmd.Flags().GetString("username")
 		// check whether username or password empty
@@ -42,7 +48,7 @@ var loginCmd = &cobra.Command{
 		fmt.Printf("Please enter the password: ")
 		fmt.Scanf("%s", &password)
 		// check whether user is registed
-		ok := Service.IsRegisteredUser(username)
+		ok = Service.IsRegisteredUser(username)
 		if ok == false {
 			fmt.Fprintln(os.Stderr, "error : This user not exists")
 			os.Exit(1)

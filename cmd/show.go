@@ -20,6 +20,7 @@ import (
 	"strings"
 	service "github.com/txzdream/agenda-go/entity/service"
 	"github.com/spf13/cobra"
+	log "github.com/txzdream/agenda-go/entity/tools"
 )
 
 // showCmd represents the show command
@@ -32,6 +33,9 @@ var ushowCmd = &cobra.Command{
 		service.StartAgenda(&Service)
 		// check whether user login
 		ok, CurUsername := Service.AutoUserLogin()
+		if ok == true {
+			fmt.Println(strings.Join([]string{CurUsername,"@:"}, ""))
+		}
 		if ok == false {
 			fmt.Fprintln(os.Stderr, "error : No User has Logined in")
 			os.Exit(1)
@@ -63,15 +67,20 @@ var mshowCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		var Service service.Service
 		service.StartAgenda(&Service)
-
+		// check whether other user logged in
 		ok, name := Service.AutoUserLogin()
+		if ok == true {
+			fmt.Println(strings.Join([]string{name,"@:"}, ""))
+		}
 		if !ok {
 			fmt.Fprintln(os.Stderr, "error: No current logged user.")
+			log.LogInfoOrErrorIntoFile(name, false, fmt.Sprintf("Show meeting with no user login."))
 			os.Exit(0)
 		}
 		
 		if startTime == "" || endTime == "" {
 			fmt.Fprintln(os.Stderr, "error: Start time and end time is required.")
+			log.LogInfoOrErrorIntoFile(name, true, fmt.Sprintf("Show meeting with no invalid time."))
 			os.Exit(0)
 		}
 		meetingList := Service.MeetingQueryByUserAndTime(name, startTime, endTime)
@@ -88,7 +97,7 @@ var mshowCmd = &cobra.Command{
 				fmt.Printf("Sponsor: %s\n", v.GetSponsor())
 				fmt.Printf("Start time: %s\n", v.GetStartDate())
 				fmt.Printf("End time: %s\n", v.GetEndDate())
-				fmt.Printf("Participator: %s\n", v.GetParticipators())
+				fmt.Printf("Participator: %s\n", strings.Join(v.GetParticipators(), ", "))
 				fmt.Println("--·--·--·--·--·--·--·--·--·--·--")
 			}
 		}

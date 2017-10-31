@@ -33,7 +33,7 @@ func (meeting *Meeting) SetParticipators(participators []string) {
 }
 
 // 根据用户名判断是否为参与者
-func (meeting *Meeting) IsParticipators(userName string) bool {
+func (meeting Meeting) IsParticipators(userName string) bool {
 	for _, participator := range meeting.GetParticipators() {
 		if participator == userName {
 			return true

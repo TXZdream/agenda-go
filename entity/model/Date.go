@@ -4,6 +4,7 @@ import (
 	"time"
 	"strings"
 	"strconv"
+	"fmt"
 )
 
 type Date struct {
@@ -26,7 +27,10 @@ func StringDateTimeToIntArray(dateTimeString string, dateTimeArray *[5]int) bool
 	splitByLineThrough := strings.Split(splitBySlash[0], "-")
 	// 冒号分隔时分
 	splitByColon := strings.Split(splitBySlash[1], ":")
-	if len(splitByLineThrough) != 3 && len(splitByColon) != 2 {
+	if len(splitByLineThrough) != 3 || len(splitByColon) != 2 {
+		
+		fmt.Println(len(splitByLineThrough))
+		fmt.Println(len(splitByColon))
 		return false
 	}
 

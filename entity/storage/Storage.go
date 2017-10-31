@@ -6,6 +6,7 @@ import (
 	"os"
 	"sync"
 	"github.com/txzdream/agenda-go/entity/model"
+	"fmt"
 )
 
 
@@ -280,9 +281,11 @@ func (storage *Storage) QueryMeetings(filter func(meeting model.Meeting) bool) [
 	var meetings []model.Meeting
 	for _, tMeeting := range storage.Meetings {
 		if filter(tMeeting) {
+			fmt.Println(tMeeting)
 			meetings = append(meetings, tMeeting)
 		}
 	}
+	
 	return meetings
 }
 
@@ -306,7 +309,7 @@ func (storage *Storage) DeleteMeetings(filter func(meeting model.Meeting) bool) 
 			isDeleted = true
 		}
 	}
-	return isDeleted && storage.WriteUserFile()
+	return isDeleted && storage.WriteMeetingFile()
 }
 
 // ------------------------------------------------------------------

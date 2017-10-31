@@ -22,6 +22,7 @@ import (
 	"bufio"
 	"github.com/spf13/cobra"
 	service "github.com/txzdream/agenda-go/entity/service"
+	log "github.com/txzdream/agenda-go/entity/tools"
 )
 
 // createCmd represents the create command
@@ -88,11 +89,13 @@ var mcreateCmd = &cobra.Command{
 		ok, name := Service.AutoUserLogin()
 		if !ok {
 			fmt.Fprintln(os.Stderr, "error: No current logged user.")
+			log.LogInfoOrErrorIntoFile("any", false, fmt.Sprintf("Create meeting with no user login."))
 			os.Exit(0)
 		}
 
 		if meetingName == "" {
 			fmt.Fprintln(os.Stderr, "error: Meeting name is required.")
+			log.LogInfoOrErrorIntoFile(name, false, fmt.Sprintf("create meeting %s.", meetingName))
 			os.Exit(0)
 		}
 		var begin, end string
@@ -115,6 +118,7 @@ var mcreateCmd = &cobra.Command{
 			i, err := strconv.Atoi(v)
 			if err != nil {
 				fmt.Fprintln(os.Stderr, "error: Invalid input.")
+				log.LogInfoOrErrorIntoFile(name, false, fmt.Sprintf("Can not recognize %s when creating meeting.", v))
 				os.Exit(0)
 			}
 			participator = append(participator, userList[i - 1].GetUserName())
@@ -132,8 +136,10 @@ var mcreateCmd = &cobra.Command{
 		ok = Service.CreateMeeting(name, meetingName, begin, end, participator)
 		if ok {
 			fmt.Printf("Create meeting %s finished.", meetingName)
+			log.LogInfoOrErrorIntoFile(name, true, fmt.Sprintf("Finish creating meeting %s.", meetingName))
 		} else {
 			fmt.Printf("Can not create meeting %s.\n", meetingName)
+			log.LogInfoOrErrorIntoFile(name, false, fmt.Sprintf("Fail to create meeting %s.", meetingName))
 		}
 	},
 }

@@ -19,6 +19,7 @@ import (
 	"os"
 	service "github.com/txzdream/agenda-go/entity/service"
 	"github.com/spf13/cobra"
+	log "github.com/txzdream/agenda-go/entity/tools"
 )
 
 // leaveCmd represents the leave command
@@ -33,19 +34,23 @@ var leaveCmd = &cobra.Command{
 		ok, name := Service.AutoUserLogin()
 		if !ok {
 			fmt.Fprintln(os.Stderr, "error: No current logged user.")
+			log.LogInfoOrErrorIntoFile(name, false, fmt.Sprintf("Leave meeting with no user login."))
 			os.Exit(0)
 		}
 		
 		if meetingName == "" {
 			fmt.Fprintln(os.Stderr, "error: Meeting theme is required.")
+			log.LogInfoOrErrorIntoFile(name, false, fmt.Sprintf("Leave meeting with no title."))
 			os.Exit(0)
 		}
 		
 		ok = Service.QuitMeeting(name, meetingName)
 		if ok {
 			fmt.Printf("Finish leaving meeting %s.\n", meetingName)
+			log.LogInfoOrErrorIntoFile(name, true, fmt.Sprintf("Leave meeting %s.", meetingName))
 		} else {
 			fmt.Printf("Can not leave this meeting %s.\n", meetingName)
+			log.LogInfoOrErrorIntoFile(name, true, fmt.Sprintf("Can not leave meeting %s.", meetingName))
 		}
 	},
 }

@@ -22,6 +22,7 @@ import (
 	service "github.com/txzdream/agenda-go/entity/service"
 	"github.com/spf13/cobra"
 	"strconv"
+	log "github.com/txzdream/agenda-go/entity/tools"
 )
 
 // manageCmd represents the manage command
@@ -36,11 +37,13 @@ var manageCmd = &cobra.Command{
 		ok, name := Service.AutoUserLogin()
 		if !ok {
 			fmt.Fprintln(os.Stderr, "error: No current logged user.")
+			log.LogInfoOrErrorIntoFile(name, false, fmt.Sprintf("Manage meeting with no user login."))
 			os.Exit(0)
 		}
 		
 		if meetingName == "" {
 			fmt.Fprintln(os.Stderr, "error: Meeting theme is required.")
+			log.LogInfoOrErrorIntoFile(name, false, fmt.Sprintf("Manage  meeting %s with no title.", meetingName))
 			os.Exit(0)
 		}
 		
@@ -77,8 +80,10 @@ var manageCmd = &cobra.Command{
 				ok := Service.DeleteParticipatorByTitle(name, meetingName, v)
 				if ok {
 					fmt.Printf("%s was removed.\n", v)
+					log.LogInfoOrErrorIntoFile(name, true, fmt.Sprintf("Remove %s from meeting %s.", v, meetingName))
 				} else {
 					fmt.Printf("%s can not be removed.\n", v)
+					log.LogInfoOrErrorIntoFile(name, false, fmt.Sprintf("Can not remove %s from meeting %s.", v, meetingName))
 				}
 			}
 		} else {
@@ -102,8 +107,10 @@ var manageCmd = &cobra.Command{
 				}
 				if Service.AddParticipatorByTitle(name, meetingName, userList[i - 1].GetUserName()) {
 					fmt.Printf("%s was added.\n", userList[i - 1].GetUserName())
+					log.LogInfoOrErrorIntoFile(name, true, fmt.Sprintf("Add %s to meeting %s.", userList[i - 1].GetUserName(), meetingName))
 				} else {
 					fmt.Printf("%s can not be added.\n", userList[i - 1].GetUserName())
+					log.LogInfoOrErrorIntoFile(name, false, fmt.Sprintf("Can not add %s to meeting %s.", userList[i - 1].GetUserName(), meetingName))
 				}
 			}
 		}

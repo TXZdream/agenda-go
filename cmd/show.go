@@ -20,6 +20,7 @@ import (
 	"strings"
 	service "github.com/txzdream/agenda-go/entity/service"
 	"github.com/spf13/cobra"
+	log "github.com/txzdream/agenda-go/entity/tools"
 )
 
 // showCmd represents the show command
@@ -67,11 +68,13 @@ var mshowCmd = &cobra.Command{
 		ok, name := Service.AutoUserLogin()
 		if !ok {
 			fmt.Fprintln(os.Stderr, "error: No current logged user.")
+			log.LogInfoOrErrorIntoFile(name, false, fmt.Sprintf("Show meeting with no user login."))
 			os.Exit(0)
 		}
 		
 		if startTime == "" || endTime == "" {
 			fmt.Fprintln(os.Stderr, "error: Start time and end time is required.")
+			log.LogInfoOrErrorIntoFile(name, true, fmt.Sprintf("Show meeting with no invalid time."))
 			os.Exit(0)
 		}
 		meetingList := Service.MeetingQueryByUserAndTime(name, startTime, endTime)

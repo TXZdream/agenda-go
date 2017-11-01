@@ -39,6 +39,8 @@ var ucreateCmd = &cobra.Command{
 		ok, CurUsername := Service.AutoUserLogin()
 		if ok == true {
 			fmt.Println(strings.Join([]string{CurUsername, "@:"}, ""))
+			fmt.Fprintln(os.Stderr, strings.Join([]string{CurUsername, " had logged in. Please log out first."}, ""))
+			os.Exit(1)
 		}
 		// get createUser information
 		createUsername, _ := cmd.Flags().GetString("username")
@@ -72,10 +74,6 @@ var ucreateCmd = &cobra.Command{
 			}
 			times *= -1
 			prePassword = createPassword
-		}
-		if CurUsername != "" {
-			fmt.Fprintln(os.Stderr, strings.Join([]string{CurUsername, " had logged in. Please log out first."}, ""))
-			os.Exit(1)
 		}
 		// check whether User is registed
 		ok = Service.UserRegister(createUsername, createPassword, createEmail, createPhone)

@@ -35,27 +35,18 @@ var ushowCmd = &cobra.Command{
 		ok, CurUsername := Service.AutoUserLogin()
 		if ok == true {
 			fmt.Println(strings.Join([]string{CurUsername,"@:"}, ""))
-		}
-		if ok == false {
+		} else {
 			fmt.Fprintln(os.Stderr, "error : No User has Logined in")
 			os.Exit(1)
 		}
 		// get email and phone by username
-		ok, curUser := Service.GetCurrentUser(CurUsername)
-		email := curUser.GetEmail()
-		phone := curUser.GetPhone()
-		if ok == false {
-			fmt.Fprintln(os.Stderr, "Some mistakes happend in ListUserInformation")
-			os.Exit(1)	
+		users := Service.ListAllUsers()
+		fmt.Printf("%-15s%-25s%-25s\n", "Username", "E-mail", "phone number")
+		for _, user := range users {
+			fmt.Printf("%-15s%-25s%-25s\n", user.GetUserName(), user.GetEmail(), user.GetPhone())
 		}
-		fmt.Println("Username : ", CurUsername)
-		fmt.Println("Email : ", email)
-		fmt.Println("Phone : ", phone)
-		// get meetings by username
-		meetings := Service.ListAllMeetings(CurUsername)
-		for _, item := range meetings {
-			fmt.Println(strings.Join([]string{item.GetTitle(), item.GetStartDate(), item.GetEndDate()}, " "))
-		}
+		fmt.Printf("\nTotal number is %d\n", len(users))
+
 		os.Exit(0)
 	},
 }

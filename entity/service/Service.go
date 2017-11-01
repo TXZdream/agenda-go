@@ -261,8 +261,8 @@ func (service *Service) DeleteParticipatorByTitle(sponsor string, title string, 
 // 查询会议---通过用户名(用户作为发起者/参与者)和会议title查找
 func (service *Service) MeetingQueryByTitle(userName string, title string) []model.Meeting {
 	return service.AgendaStorage.QueryMeetings(func(meeting model.Meeting) bool {
-		return meeting.GetTitle() == title && meeting.GetSponsor() == userName &&
-			meeting.IsParticipators(userName)
+		return meeting.GetTitle() == title && (meeting.GetSponsor() == userName ||
+			meeting.IsParticipators(userName))
 	})
 }
 

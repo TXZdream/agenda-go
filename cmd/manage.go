@@ -73,7 +73,7 @@ var manageCmd = &cobra.Command{
 			var toBeRemovedParticipators []string
 			for _, v := range chosenList {
 				num, err := strconv.Atoi(v)
-				if err != nil {
+				if err != nil || num <= 0 || num > len(participator) {
 					fmt.Fprintln(os.Stderr, "error: Invalid input")
 					os.Exit(1)
 				}
@@ -103,8 +103,11 @@ var manageCmd = &cobra.Command{
 			userNums = string(data)
 			userNumList := strings.Split(userNums, " ")
 			for _, v := range userNumList {
+				if len(v) == 0 {
+					continue
+				}
 				i, ok := strconv.Atoi(v)
-				if ok != nil || i > len(userList) {
+				if ok != nil || i > len(userList) || i <= 0 {
 					fmt.Fprintln(os.Stderr, "error: Invalid input.")
 					os.Exit(0)
 				}
@@ -133,5 +136,5 @@ func init() {
 	// is called directly, e.g.:
 	// manageCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 	manageCmd.Flags().StringVarP(&meetingName, "name", "", "", "the name of meeting to be managed")
-	manageCmd.Flags().BoolVarP(&isDelete, "", "d", false, "Delete a meeting")
+	manageCmd.Flags().BoolVarP(&isDelete, "", "d", false, "Delete user(s) from a meeting")
 }

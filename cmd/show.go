@@ -43,7 +43,7 @@ var ushowCmd = &cobra.Command{
 		users := Service.ListAllUsers()
 		fmt.Printf("%-15s%-20s%-20s\n", "Username", "E-mail", "phone number")
 		for _, user := range users {
-			fmt.Printf("%-15s%-25s%-25s", user.GetUserName(), user.GetEmail(), user.GetPhone())
+			fmt.Printf("%-15s%-25s%-25s\n", user.GetUserName(), user.GetEmail(), user.GetPhone())
 		}
 		fmt.Printf("\nTotal number is %d\n", len(users))
 

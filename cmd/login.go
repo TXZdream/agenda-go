@@ -57,6 +57,12 @@ var loginCmd = &cobra.Command{
 			fmt.Fprintln(os.Stderr, "error : This user not exists")
 			os.Exit(1)
 		}
+		// check whether has Login in
+		ok, CurUserName := Service.AutoUserLogin()
+		if CurUserName == username {
+			fmt.Fprintln(os.Stderr, "error : You have Logined in as ", CurUserName)
+			os.Exit(1)
+		}
 		// check the password
 		var times int
 		for {
@@ -73,12 +79,6 @@ var loginCmd = &cobra.Command{
 			} else {
 				break
 			}
-		}
-		// check whether has Login in
-		ok, CurUserName := Service.AutoUserLogin()
-		if CurUserName == username {
-			fmt.Fprintln(os.Stderr, "error : You have Logined in as ", CurUserName)
-			os.Exit(1)
 		}
 		// Succeed in Login as {username}
 		fmt.Println("success : You have Logined in as ", username)

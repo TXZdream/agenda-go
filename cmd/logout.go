@@ -43,6 +43,11 @@ var logoutCmd = &cobra.Command{
 			fmt.Fprintln(os.Stderr, "error : Current User not exits")
 			os.Exit(1)
 		}
+		ok = Service.UserLogout()
+		if ok == false {
+			fmt.Fprintln(os.Stderr, "error : some mistakes happend in UserLogout")
+			os.Exit(1)
+		}
 		fmt.Println("Success : ", CurUsername, " Logout")
 		Service.QuitAgenda()
 		os.Exit(0)

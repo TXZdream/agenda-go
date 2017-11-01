@@ -66,6 +66,11 @@ var udeleteCmd = &cobra.Command{
 				os.Exit(1)
 			}
 			fmt.Println("Success : delete ", loginUsername)
+			ok = Service.UserLogout()
+			if ok == false {
+				fmt.Fprintln(os.Stderr, "some mistake happend in UserLogout")
+				os.Exit(1)
+			}
 			Service.QuitAgenda()
 			os.Exit(0)
 		} else {

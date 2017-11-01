@@ -53,6 +53,11 @@ func (service *Service) UserLogin(userName string, password string) bool {
 	return service.AgendaStorage.WriteToCurrentUserFile(userName)
 }
 
+// 用户退出登录，把空字符串写进curuser.txt
+func (service *Service) UserLogout() bool {
+	return service.AgendaStorage.WriteToCurrentUserFile("")
+}
+
 // 用户注册，用户输入信息，判断是否存在同名用户
 func (service *Service) UserRegister(userName string, password string,
 	email string, phone string) bool {
@@ -121,8 +126,8 @@ func IsValidStartAndEndDateTime(startDateString *string, endDateString *string) 
 	}
 
 	// 判断开始时间是否小于结束时间
-	startDate := model.Date{model.SetDateByYMDHM(startDateIntArray)}
-	endDate := model.Date{model.SetDateByYMDHM(endDateIntArray)}
+	startDate := model.Date{DateTime: model.SetDateByYMDHM(startDateIntArray)}
+	endDate := model.Date{DateTime: model.SetDateByYMDHM(endDateIntArray)}
 	if !startDate.Before(endDate) {
 		return false
 	}

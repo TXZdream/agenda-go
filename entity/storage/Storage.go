@@ -55,7 +55,7 @@ func IsExistDataDirOrCreate() (bool, StorageError) {
 		}
 		return false, ExistFileNamedData
 	}
-	err = os.Mkdir(model.DataDirPath, os.ModeDir)
+	err = os.Mkdir(model.DataDirPath, os.ModePerm)
 	if err != nil {
 		return false, FailCreateDataDir
 	}

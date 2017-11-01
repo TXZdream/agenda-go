@@ -133,5 +133,5 @@ func init() {
 	// is called directly, e.g.:
 	// manageCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 	manageCmd.Flags().StringVarP(&meetingName, "name", "", "", "the name of meeting to be managed")
-	manageCmd.Flags().BoolVarP(&isDelete, "", "d", false, "Delete a meeting")
+	manageCmd.Flags().BoolVarP(&isDelete, "", "d", false, "Delete user(s) from a meeting")
 }

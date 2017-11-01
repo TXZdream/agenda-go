@@ -33,50 +33,33 @@ var udeleteCmd = &cobra.Command{
 		var Service service.Service
 		service.StartAgenda(&Service)
 		// check whether other user logged in
-		ok, CurUsername := Service.AutoUserLogin()
+		ok, curUsername := Service.AutoUserLogin()
 		if ok == true {
-			fmt.Println(strings.Join([]string{CurUsername, "@:"}, ""))
-		}
-		// check username empty
-		username, _ := cmd.Flags().GetString("username")
-		if username == "" {
-			fmt.Fprintln(os.Stderr, "error : Username is empty")
-			os.Exit(1)
-		}
-		// check whether User Login
-		_, loginUsername := Service.AutoUserLogin()
-		if username == loginUsername {
-			// hints to ensure and enter password to delete User
-			var password string
-			fmt.Println("Ensure to delete User : ", username)
-			fmt.Print("Plase enter password: ")
-			reader := bufio.NewReader(os.Stdin)
-			data, _, _ := reader.ReadLine()
-			password = string(data)
-			// chech the password
-			ok := Service.UserLogin(username, password)
-			if ok == false {
-				fmt.Fprintln(os.Stderr, "error : Wrong password")
-				os.Exit(1)
-			}
-			// delete user and meetings it participate
-			ok = Service.DeleteUser(loginUsername, password)
-			if ok == false {
-				fmt.Fprintln(os.Stderr, "Some mistakes happend in DeleteUser.")
-				os.Exit(1)
-			}
-			fmt.Println("Success : delete ", loginUsername)
-			ok = Service.UserLogout()
-			if ok == false {
-				fmt.Fprintln(os.Stderr, "some mistake happend in UserLogout")
-				os.Exit(1)
-			}
-			Service.QuitAgenda()
-			os.Exit(0)
+			fmt.Println(strings.Join([]string{curUsername, "@:"}, ""))
 		} else {
 			fmt.Fprintln(os.Stderr, "Please Login in First")
 			os.Exit(1)
 		}
+
+		// hints to ensure and enter password to delete User
+		var password string
+		fmt.Print("Plase enter password: ")
+		reader := bufio.NewReader(os.Stdin)
+		data, _, _ := reader.ReadLine()
+		password = string(data)
+		// delete user and meetings it participate
+		if Service.DeleteUser(curUsername, password) == false {
+			fmt.Fprintln(os.Stderr, "Some mistakes happend in DeleteUser.")
+			os.Exit(1)
+		}
+		fmt.Println("Success : delete ", curUsername)
+		ok = Service.UserLogout()
+		if ok == false {
+			fmt.Fprintln(os.Stderr, "some mistake happend in UserLogout")
+			os.Exit(1)
+		}
+		Service.QuitAgenda()
+		os.Exit(0)
 	},
 }
 

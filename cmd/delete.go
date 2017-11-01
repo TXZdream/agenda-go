@@ -66,7 +66,7 @@ var udeleteCmd = &cobra.Command{
 				os.Exit(1)
 			}
 			fmt.Println("Success : delete ", loginUsername)
-			Service.QuitAgenda("")
+			Service.QuitAgenda()
 			os.Exit(0)
 		} else {
 			fmt.Fprintln(os.Stderr, "Please Login in First")

@@ -15,19 +15,20 @@
 package cmd
 
 import (
+	"bufio"
 	"fmt"
 	"os"
 	"strings"
-	"bufio"
-	service "github.com/txzdream/agenda-go/entity/service"
+
 	"github.com/spf13/cobra"
+	service "github.com/txzdream/agenda-go/entity/service"
 )
 
 // loginCmd represents the login command
 var loginCmd = &cobra.Command{
 	Use:   "login",
 	Short: "User login",
-	Long: `Use this command to sign in to the system.`,
+	Long:  `Use this command to sign in to the system.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		// get Service
 		var Service service.Service
@@ -35,7 +36,7 @@ var loginCmd = &cobra.Command{
 		// check whether other user logged in
 		ok, name := Service.AutoUserLogin()
 		if ok == true {
-			fmt.Println(strings.Join([]string{name,"@:"}, ""))
+			fmt.Println(strings.Join([]string{name, "@:"}, ""))
 		}
 		// get username
 		username, _ := cmd.Flags().GetString("username")
@@ -61,7 +62,7 @@ var loginCmd = &cobra.Command{
 		for {
 			ok = Service.UserLogin(username, password)
 			if ok == false {
-				if (times < 2) {
+				if times < 2 {
 					times++
 					fmt.Print("Wrong password, Please try again: ")
 					fmt.Scanf("%s", &password)
@@ -82,11 +83,7 @@ var loginCmd = &cobra.Command{
 		// Succeed in Login as {username}
 		fmt.Println("success : You have Logined in as ", username)
 		fmt.Println("Welcome to use Agenda!")
-		ok = Service.QuitAgenda(username)
-		if ok == false {
-			fmt.Fprintln(os.Stderr, "error : Some mistakes happend in QuitAgenda")
-			os.Exit(1)
-		}
+		Service.QuitAgenda()
 		os.Exit(0)
 	},
 }

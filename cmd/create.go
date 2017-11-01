@@ -15,11 +15,12 @@
 package cmd
 
 import (
+	"bufio"
+	"fmt"
+	"os"
 	"strconv"
 	"strings"
-	"os"
-	"fmt"
-	"bufio"
+
 	"github.com/spf13/cobra"
 	service "github.com/txzdream/agenda-go/entity/service"
 	log "github.com/txzdream/agenda-go/entity/tools"
@@ -29,7 +30,7 @@ import (
 var ucreateCmd = &cobra.Command{
 	Use:   "create",
 	Short: "Create user account",
-	Long: `Use this command to create a new user account.`,
+	Long:  `Use this command to create a new user account.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		// get service
 		var Service service.Service
@@ -37,7 +38,7 @@ var ucreateCmd = &cobra.Command{
 		// check whether other user logged in
 		ok, CurUsername := Service.AutoUserLogin()
 		if ok == true {
-			fmt.Println(strings.Join([]string{CurUsername,"@:"},""))
+			fmt.Println(strings.Join([]string{CurUsername, "@:"}, ""))
 		}
 		// get createUser information
 		createUsername, _ := cmd.Flags().GetString("username")
@@ -45,10 +46,10 @@ var ucreateCmd = &cobra.Command{
 		createPhone, _ := cmd.Flags().GetString("phone")
 		// check whether username, password, email or phone empty
 		if createUsername == "" || createEmail == "" ||
-		   createPhone == "" {
-			   fmt.Fprintln(os.Stderr, "error : Username, Email or Phone is(are) empty")
-				os.Exit(1)
-			}
+			createPhone == "" {
+			fmt.Fprintln(os.Stderr, "error : Username, Email or Phone is(are) empty")
+			os.Exit(1)
+		}
 		// get the password
 		var createPassword string
 		var prePassword string
@@ -70,20 +71,20 @@ var ucreateCmd = &cobra.Command{
 				}
 			}
 			times *= -1
-			prePassword = createPassword			
+			prePassword = createPassword
 		}
 		if CurUsername != "" {
-			fmt.Fprintln(os.Stderr, strings.Join([]string{CurUsername," had logged in. Please log out first."}, ""))
+			fmt.Fprintln(os.Stderr, strings.Join([]string{CurUsername, " had logged in. Please log out first."}, ""))
 			os.Exit(1)
 		}
-		// check whether User is registed		
+		// check whether User is registed
 		ok = Service.UserRegister(createUsername, createPassword, createEmail, createPhone)
 		if ok == false {
-			fmt.Println(createUsername," has been registered")
+			fmt.Println(createUsername, " has been registered")
 			os.Exit(1)
 		}
 		fmt.Println("Sucess : Register ", createUsername)
-		Service.QuitAgenda("")
+		Service.QuitAgenda()
 		os.Exit(0)
 	},
 }
@@ -91,7 +92,7 @@ var ucreateCmd = &cobra.Command{
 var mcreateCmd = &cobra.Command{
 	Use:   "create",
 	Short: "Create meeting",
-	Long: `Use this command to create a new meeting.`,
+	Long:  `Use this command to create a new meeting.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		var Service service.Service
 		service.StartAgenda(&Service)
@@ -121,7 +122,7 @@ var mcreateCmd = &cobra.Command{
 			if v.GetUserName() == name {
 				self = i
 			}
-			fmt.Printf("%d. %s\n", i + 1, v.GetUserName())
+			fmt.Printf("%d. %s\n", i+1, v.GetUserName())
 		}
 
 		fmt.Printf("Please choose the number of them to join your meeting(seprate with space): ")
@@ -130,7 +131,7 @@ var mcreateCmd = &cobra.Command{
 		data, _, _ := reader.ReadLine()
 		chosenUsers = string(data)
 		chosenList := strings.Split(chosenUsers, " ")
-		
+
 		for _, v := range chosenList {
 			if len(v) == 0 {
 				continue
@@ -145,11 +146,11 @@ var mcreateCmd = &cobra.Command{
 				fmt.Fprintln(os.Stderr, "error: Invalid input.")
 				os.Exit(0)
 			}
-			if i == self + 1 {
+			if i == self+1 {
 				fmt.Println("error: You can not add yourself to the meeting.")
 				os.Exit(0)
 			}
-			participator = append(participator, userList[i - 1].GetUserName())
+			participator = append(participator, userList[i-1].GetUserName())
 		}
 
 		// scan start time and end time
@@ -159,7 +160,7 @@ var mcreateCmd = &cobra.Command{
 		fmt.Printf("Please input end time(format: YYYY-MM-DD/HH:MM): ")
 		data, _, _ = reader.ReadLine()
 		end = string(data)
-		
+
 		ok = Service.CreateMeeting(name, meetingName, begin, end, participator)
 		if ok {
 			fmt.Printf("Create meeting %s finished.\n", meetingName)

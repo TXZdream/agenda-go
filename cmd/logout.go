@@ -18,15 +18,16 @@ import (
 	"fmt"
 	"os"
 	"strings"
-	service "github.com/txzdream/agenda-go/entity/service"	
+
 	"github.com/spf13/cobra"
+	service "github.com/txzdream/agenda-go/entity/service"
 )
 
 // logoutCmd represents the logout command
 var logoutCmd = &cobra.Command{
 	Use:   "logout",
 	Short: "Sign out",
-	Long: `Use this command to sign out`,
+	Long:  `Use this command to sign out`,
 	Run: func(cmd *cobra.Command, args []string) {
 		// get service
 		var Service service.Service
@@ -34,7 +35,7 @@ var logoutCmd = &cobra.Command{
 		// check whether other user logged in
 		ok, name := Service.AutoUserLogin()
 		if ok == true {
-			fmt.Println(strings.Join([]string{name,"@:"}, ""))
+			fmt.Println(strings.Join([]string{name, "@:"}, ""))
 		}
 		// check Whether CurUser exits
 		ok, CurUsername := Service.AutoUserLogin()
@@ -43,10 +44,7 @@ var logoutCmd = &cobra.Command{
 			os.Exit(1)
 		}
 		fmt.Println("Success : ", CurUsername, " Logout")
-		ok = Service.QuitAgenda("")
-		if ok == false {
-			fmt.Fprintln(os.Stderr, "error : Some mistakes happend in QuitAgenda")
-		}
+		Service.QuitAgenda()
 		os.Exit(0)
 	},
 }

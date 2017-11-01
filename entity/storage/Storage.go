@@ -1,18 +1,18 @@
-package entity
+package storage
 
 import (
 	"encoding/json"
 	"io/ioutil"
 	"os"
 	"sync"
+
 	"github.com/txzdream/agenda-go/entity/model"
 )
 
-
 // Usage : agenda.Storage{Users: []agenda.User{}, Meetings: []agenda.Meeting{}}
 type Storage struct {
-	Users       []model.User
-	Meetings    []model.Meeting
+	Users    []model.User
+	Meetings []model.Meeting
 }
 
 var instance *Storage
@@ -27,6 +27,7 @@ func GetStorageInstance() *Storage {
 }
 
 type StorageError string
+
 const (
 	// 文件夹--存在/创建
 	SucceedCreateDataDir StorageError = "Succeed In Creating Data Dir"
@@ -54,7 +55,7 @@ func IsExistDataDirOrCreate() (bool, StorageError) {
 		}
 		return false, ExistFileNamedData
 	}
-	err = os.Mkdir(model.DataDirPath, os.ModeDir)
+	err = os.Mkdir(model.DataDirPath, os.ModePerm)
 	if err != nil {
 		return false, FailCreateDataDir
 	}
@@ -91,6 +92,7 @@ func IsExistUserFileOrCreate() (bool, StorageError) {
 func IsExistMeetingFileOrCreate() (bool, StorageError) {
 	return IsExistFileOrCreate(model.MeetingDataPath)
 }
+
 // ---------------------------------------------
 
 // 判断文件夹和文件是否存在
@@ -207,8 +209,6 @@ func (storage *Storage) WriteMeetingFile() bool {
 	return WriteToFile(model.MeetingDataPath, meetingJson)
 }
 
-
-
 // 退出登陆，清空当前用户，把当前用户名、用户列表数据和会议列表数据写入
 func (storage *Storage) LogOutStorage(CurrentUserName string) (bool, StorageError) {
 	instance = nil
@@ -283,7 +283,7 @@ func (storage *Storage) QueryMeetings(filter func(meeting model.Meeting) bool) [
 			meetings = append(meetings, tMeeting)
 		}
 	}
-	
+
 	return meetings
 }
 
@@ -297,7 +297,7 @@ func (storage *Storage) UpdateMeeting(filter func(meeting model.Meeting) bool, u
 	}
 	return false
 }
- 
+
 // 删除会议
 func (storage *Storage) DeleteMeetings(filter func(meeting model.Meeting) bool) bool {
 	isDeleted := false // 是否进行过删除

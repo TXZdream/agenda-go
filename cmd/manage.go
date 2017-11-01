@@ -73,7 +73,7 @@ var manageCmd = &cobra.Command{
 			var toBeRemovedParticipators []string
 			for _, v := range chosenList {
 				num, err := strconv.Atoi(v)
-				if err != nil {
+				if err != nil || num <= 0 || num > len(participator) {
 					fmt.Fprintln(os.Stderr, "error: Invalid input")
 					os.Exit(1)
 				}
@@ -103,8 +103,11 @@ var manageCmd = &cobra.Command{
 			userNums = string(data)
 			userNumList := strings.Split(userNums, " ")
 			for _, v := range userNumList {
+				if len(v) == 0 {
+					continue
+				}
 				i, ok := strconv.Atoi(v)
-				if ok != nil || i > len(userList) {
+				if ok != nil || i > len(userList) || i <= 0 {
 					fmt.Fprintln(os.Stderr, "error: Invalid input.")
 					os.Exit(0)
 				}
